@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: MPL-2.0
+
+DIRS += ["content", "locales"]
+
+DIST_SUBDIR = "browser"
+export("DIST_SUBDIR")
+
+# FirefoxBranding is the upstream build-template API name. It does not identify
+# the product and is intentionally retained for source compatibility.
+include("../branding-common.mozbuild")
+FirefoxBranding()

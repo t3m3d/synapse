@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "mode": "blackout",
+  "claim": "engineering privacy mode; not a government classification or certification",
+  "launch_state": "disabled_until_all_required_controls_are_enforced",
+  "fail_closed": true,
+  "network": {
+    "route": "tor",
+    "proxy_host": "127.0.0.1",
+    "proxy_port_template": 0,
+    "remote_dns_required": true,
+    "direct_fallback_allowed": false,
+    "proxy_bypass_allowed": false,
+    "lan_allowed": false,
+    "external_protocol_handoff_allowed": false,
+    "os_egress_firewall_required": true,
+    "tor_liveness_monitor_required": true
+  },
+  "profile": {
+    "fresh_profile_per_launch": true,
+    "concurrent_reuse_allowed": false,
+    "persistent_history_allowed": false,
+    "persistent_site_storage_allowed": false,
+    "saved_credentials_allowed": false,
+    "autofill_allowed": false,
+    "crash_restore_allowed": false,
+    "secure_cleanup_required": true
+  },
+  "capabilities": {
+    "installable_extensions_allowed": false,
+    "audited_builtin_components_only": true,
+    "webrtc_allowed": false,
+    "camera_or_microphone_allowed": false,
+    "screen_capture_allowed": false,
+    "printing_allowed": false,
+    "clipboard_bridge_allowed": false,
+    "downloads_allowed": false
+  },
+  "preflight_attestations": [
+    "blackout_policy_loaded_and_locked",
+    "no_non_builtin_addon_active",
+    "tor_listener_probed",
+    "tor_circuit_ready",
+    "proxy_port_nonzero_and_matches_probed_listener",
+    "os_egress_firewall_active",
+    "ephemeral_profile_created_with_restrictive_acl",
+    "clipboard_and_download_brokers_disabled"
+  ],
+  "on_invariant_failure": "terminate_all_synapse_content_and_parent_processes"
+}
+

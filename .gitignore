@@ -42,6 +42,16 @@ obj/x86/
 [Aa][Rr][Mm]64/
 [Aa][Rr][Mm]64[Ee][Cc]/
 bld/
+
+# Synapse/Krypton outputs
+dist/*
+!dist/.gitkeep
+*.kir
+*.wasm.map
+engine/gecko/
+engine/worktrees/
+.synapse-build/
+
 [Oo]bj/
 [Oo]ut/
 [Ll]og/

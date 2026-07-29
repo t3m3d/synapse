@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Synapse">
+  <defs>
+    <linearGradient id="shield" x1="48" y1="28" x2="204" y2="224" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#25225D"/>
+      <stop offset=".52" stop-color="#151542"/>
+      <stop offset="1" stop-color="#090A22"/>
+    </linearGradient>
+    <linearGradient id="signal" x1="70" y1="58" x2="185" y2="188" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#65F4FF"/>
+      <stop offset=".5" stop-color="#31D8E8"/>
+      <stop offset="1" stop-color="#46F0B5"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="3.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <path d="M128 18 213 50v64c0 57-33 102-85 124-52-22-85-67-85-124V50z"
+        fill="url(#shield)" stroke="#514EA8" stroke-width="5"/>
+  <g fill="none" stroke="url(#signal)" stroke-linecap="round" stroke-width="10" filter="url(#glow)">
+    <path d="M84 78c25 0 40 7 44 28s18 28 44 28"/>
+    <path d="M172 78c-25 0-40 7-44 28s-18 28-44 28"/>
+    <path d="M84 134c27 0 44 14 44 42"/>
+  </g>
+  <g fill="#ECFDFF" stroke="url(#signal)" stroke-width="7" filter="url(#glow)">
+    <circle cx="82" cy="78" r="13"/>
+    <circle cx="174" cy="78" r="13"/>
+    <circle cx="128" cy="178" r="14"/>
+  </g>
+</svg>

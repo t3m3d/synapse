@@ -1,0 +1,537 @@
+{
+  "schema": 1,
+  "source": "assets/branding/synapse-logo.png",
+  "sourceSha256": "09020e8b9bacbd2a0e2401c476cc1060b2ac3a1de0bb2e849aaa34752449ebb9",
+  "files": [
+    {
+      "path": "background.png",
+      "bytes": 97426,
+      "sha256": "0735d81e14f4156951f117965740d2c2337e74a8bfade093a1a848171174fc51",
+      "format": "PNG",
+      "width": 1440,
+      "height": 880,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "branding.nsi",
+      "bytes": 2164,
+      "sha256": "8434c0f8f3ec602629ba20d2c23ebafa68af0d9888f26e06a07b0d7140e9abf6"
+    },
+    {
+      "path": "configure.sh",
+      "bytes": 101,
+      "sha256": "38ceb0368264ddce99dcd1bdd52d7c03946ed805cee4807a709edc452b445ae9"
+    },
+    {
+      "path": "content/about-logo-private.png",
+      "bytes": 17002,
+      "sha256": "ccc1c0bc27276e6144e9fad28b9be5f55718942448dbb7c4766a8d79a76b3ab3",
+      "format": "PNG",
+      "width": 192,
+      "height": 192,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "content/about-logo-private@2x.png",
+      "bytes": 47345,
+      "sha256": "7999789b424f57282af9403dd1581b1d82674f39ecbb59fcc1acf11890029a90",
+      "format": "PNG",
+      "width": 384,
+      "height": 384,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "content/about-logo.png",
+      "bytes": 23256,
+      "sha256": "5ac9d952b416723b6692880880de07aecd9a07fde328f4393401c57692bd16a1",
+      "format": "PNG",
+      "width": 192,
+      "height": 192,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "content/about-logo.svg",
+      "bytes": 1470,
+      "sha256": "08f8054105049ca5af86efd91a3f0bbba3b5210fa9a953835b0a7e5808ab2eb8"
+    },
+    {
+      "path": "content/about-logo@2x.png",
+      "bytes": 67605,
+      "sha256": "3ecaad403bfa7a63bb86a3a1a9fb5256fe7c8e48bb767c7ab575546e74317f3e",
+      "format": "PNG",
+      "width": 384,
+      "height": 384,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "content/about-wordmark.svg",
+      "bytes": 1067,
+      "sha256": "91c061cd84abd4b092fd7d1baa4455307144e19d3d9a87a0adc1261b356d605b"
+    },
+    {
+      "path": "content/about.png",
+      "bytes": 15407,
+      "sha256": "c6f6b9f9a1c65dfdadc4a5c956cf3b6c872ea607bbaf6cdfc271725a176f8b4f",
+      "format": "PNG",
+      "width": 300,
+      "height": 236,
+      "mode": "RGB",
+      "frames": 1
+    },
+    {
+      "path": "content/aboutDialog.css",
+      "bytes": 783,
+      "sha256": "437e0d7ba857b290d349c57dc468cfd9287b372f628309e943d00326ab97ed2b"
+    },
+    {
+      "path": "content/document_pdf.svg",
+      "bytes": 622,
+      "sha256": "cbcd2babf9af9ad50b7065aecaf98c99f40292ffb8f5dda1163d8f4fe2473847"
+    },
+    {
+      "path": "content/firefox-wordmark.svg",
+      "bytes": 959,
+      "sha256": "202719c72c839e39aabb34e05b1b833f1d321b23daf3a23b7ff75d7190939aa6"
+    },
+    {
+      "path": "content/jar.mn",
+      "bytes": 887,
+      "sha256": "530215e6d3f824851536d2259f71b525ab63010af977d8cea001cc3e4410a1e3"
+    },
+    {
+      "path": "content/moz.build",
+      "bytes": 64,
+      "sha256": "f42703266a97abf137aa2f0183314b8abb46cf638d7f9bd7edd73f194ea1c155"
+    },
+    {
+      "path": "default128.png",
+      "bytes": 12720,
+      "sha256": "8adeb4585e38b71f01f5b16b0aff75069c3550ccd82fa9321a60b77cf1ce8f37",
+      "format": "PNG",
+      "width": 128,
+      "height": 128,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "default16.png",
+      "bytes": 656,
+      "sha256": "8e845dd05ae9e4648f93493a0265137bd49df4388fd67e93f576f401ca569f42",
+      "format": "PNG",
+      "width": 16,
+      "height": 16,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "default22.png",
+      "bytes": 988,
+      "sha256": "118d010f00828064a66a7a7e180146888438ac69de627b21bd8e8c8e00c2bd28",
+      "format": "PNG",
+      "width": 22,
+      "height": 22,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "default24.png",
+      "bytes": 1126,
+      "sha256": "3dfe0f12c965607baba0385115cc1b80b2d58867a1a8d39e19a5b3f1cf1d3db9",
+      "format": "PNG",
+      "width": 24,
+      "height": 24,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "default256.png",
+      "bytes": 35722,
+      "sha256": "93494ce487fa2ecc832c726ab7b2253ab023f17aca9aee9f55c5bdcc0a390e5d",
+      "format": "PNG",
+      "width": 256,
+      "height": 256,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "default32.png",
+      "bytes": 1701,
+      "sha256": "120a7190b19bb49adb8c1ec58066e1ef4cd58af3766fdb2d4acba1f59ec5520d",
+      "format": "PNG",
+      "width": 32,
+      "height": 32,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "default48.png",
+      "bytes": 3151,
+      "sha256": "0e09efc69c0673101327a912a6ba5dfbd64498dcca0fa301c740aeaf3d009c50",
+      "format": "PNG",
+      "width": 48,
+      "height": 48,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "default64.png",
+      "bytes": 4779,
+      "sha256": "8e5b03b9775813f7abf2b290764856d61997fe1b77aff91aa1ec0fc76541e886",
+      "format": "PNG",
+      "width": 64,
+      "height": 64,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "disk.icns",
+      "bytes": 627427,
+      "sha256": "3a3666665f7431040c80ab4d713b678dae908b09f2bafa32ba14116d6bebb2d5",
+      "format": "ICNS",
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "document.icns",
+      "bytes": 157459,
+      "sha256": "b92f7d8a5060b4c3ac458794f5806da1dae5a5ad7beddf18529cdb20d98f06ba",
+      "format": "ICNS",
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "document.ico",
+      "bytes": 20434,
+      "sha256": "67fe0c06225bd503ea3b92f6187975babcfdefb01d14b4ccd337c154fa8b0758",
+      "format": "ICO",
+      "width": 256,
+      "height": 256,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "document_pdf.ico",
+      "bytes": 11753,
+      "sha256": "a4f2a05317c9b59a374505b32c6f768f1e592de76a19e2cac98402a20c2b8760",
+      "format": "ICO",
+      "width": 256,
+      "height": 256,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "firefox.icns",
+      "bytes": 627427,
+      "sha256": "3a3666665f7431040c80ab4d713b678dae908b09f2bafa32ba14116d6bebb2d5",
+      "format": "ICNS",
+      "width": 1024,
+      "height": 1024,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "firefox.ico",
+      "bytes": 64918,
+      "sha256": "4e2b9a24bf0d262b0b6dfe3001c6117f16614fa9de39dbb359cf59b5dbfcab27",
+      "format": "ICO",
+      "width": 256,
+      "height": 256,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "firefox.VisualElementsManifest.xml",
+      "bytes": 425,
+      "sha256": "2e579c4885ca47500a999a0c6bc555511acc4e61c4a13f8372e470e7b8a943f0"
+    },
+    {
+      "path": "firefox64.ico",
+      "bytes": 12711,
+      "sha256": "37e4b263622db683a9f7f91bc17682824febc176b1ab07d7d145eb5355b9f408",
+      "format": "ICO",
+      "width": 64,
+      "height": 64,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "locales/en-US/brand.ftl",
+      "bytes": 243,
+      "sha256": "423f023353fb86a50c8eed33917ebe2e4e8cd44618c35e4b2629466123fcdba6"
+    },
+    {
+      "path": "locales/en-US/brand.properties",
+      "bytes": 106,
+      "sha256": "1e95dd60033785076727e1bfd7ede1625ecd742ed440b24e01e788440d483f21"
+    },
+    {
+      "path": "locales/jar.mn",
+      "bytes": 272,
+      "sha256": "f2601cf873ffd80f0ac8e6d9349f61cf67b795c165aef3d6a43346892af051af"
+    },
+    {
+      "path": "locales/moz.build",
+      "bytes": 64,
+      "sha256": "f42703266a97abf137aa2f0183314b8abb46cf638d7f9bd7edd73f194ea1c155"
+    },
+    {
+      "path": "moz.build",
+      "bytes": 322,
+      "sha256": "72605ea34ffb0633885d39ee1f36619c64a5a1d1c8d6582793bc2f6bd26f72e8"
+    },
+    {
+      "path": "msix/Assets/Document44x44.png",
+      "bytes": 755,
+      "sha256": "72a1537f6263cad54e74f5a09b5303756b32a1c0c2a2ce8ee1afe7a18869b3cf",
+      "format": "PNG",
+      "width": 44,
+      "height": 44,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "msix/Assets/LargeTile.scale-200.png",
+      "bytes": 98996,
+      "sha256": "47a66b5580dbf3e4736c3c4475d2b28b0c36c8fc1ce31dfc8f76593df7e70a3e",
+      "format": "PNG",
+      "width": 620,
+      "height": 620,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "msix/Assets/MedTile.scale-200.png",
+      "bytes": 30422,
+      "sha256": "30aeb81626d3c6c3268dd29e6f1869e399e7591980dc9d8d89dbbcd5e5aeb30e",
+      "format": "PNG",
+      "width": 300,
+      "height": 300,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "msix/Assets/SmallTile.scale-200.png",
+      "bytes": 9747,
+      "sha256": "ebc55c7881848513c72ee61c154ba873c05e9eb776a1ebf60e21d6cfa612bc14",
+      "format": "PNG",
+      "width": 142,
+      "height": 142,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "msix/Assets/Square150x150Logo.scale-200.png",
+      "bytes": 30422,
+      "sha256": "30aeb81626d3c6c3268dd29e6f1869e399e7591980dc9d8d89dbbcd5e5aeb30e",
+      "format": "PNG",
+      "width": 300,
+      "height": 300,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "msix/Assets/Square44x44Logo.altform-lightunplated_targetsize-256.png",
+      "bytes": 35722,
+      "sha256": "93494ce487fa2ecc832c726ab7b2253ab023f17aca9aee9f55c5bdcc0a390e5d",
+      "format": "PNG",
+      "width": 256,
+      "height": 256,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "msix/Assets/Square44x44Logo.altform-unplated_targetsize-256.png",
+      "bytes": 35722,
+      "sha256": "93494ce487fa2ecc832c726ab7b2253ab023f17aca9aee9f55c5bdcc0a390e5d",
+      "format": "PNG",
+      "width": 256,
+      "height": 256,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "msix/Assets/Square44x44Logo.scale-200.png",
+      "bytes": 5073,
+      "sha256": "29d8195039b82001838b14a18e65201c1f1aeedea0b95da3330599d4024e0564",
+      "format": "PNG",
+      "width": 88,
+      "height": 88,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "msix/Assets/Square44x44Logo.targetsize-256.png",
+      "bytes": 35722,
+      "sha256": "93494ce487fa2ecc832c726ab7b2253ab023f17aca9aee9f55c5bdcc0a390e5d",
+      "format": "PNG",
+      "width": 256,
+      "height": 256,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "msix/Assets/StoreLogo.scale-200.png",
+      "bytes": 6083,
+      "sha256": "0c4df3e9fbc8fb931dc2ae322cb2b1565d06ad4a0736cb86da30c862c0870267",
+      "format": "PNG",
+      "width": 100,
+      "height": 100,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "msix/Assets/Wide310x150Logo.scale-200.png",
+      "bytes": 33444,
+      "sha256": "ab548a0580470ae28731d12fe0c924927ee6540a3476ebd402b51e419289b122",
+      "format": "PNG",
+      "width": 620,
+      "height": 300,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "newtab.ico",
+      "bytes": 2424,
+      "sha256": "dcc1c16ae0266e43380226e32c579bfc72a191862a7e8991a0b1aea88da39361",
+      "format": "ICO",
+      "width": 32,
+      "height": 32,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "newwindow.ico",
+      "bytes": 2697,
+      "sha256": "b6bf0cd33395d9735a738bb9b77b9b15b5493a54f3637fcf384c26362fe7d937",
+      "format": "ICO",
+      "width": 32,
+      "height": 32,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "pbmode.ico",
+      "bytes": 59051,
+      "sha256": "fc66fbd46690dbce4761214bba070097b35e145683ee53b1e4c88646da09adb7",
+      "format": "ICO",
+      "width": 256,
+      "height": 256,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "pref/firefox-branding.js",
+      "bytes": 596,
+      "sha256": "128137130cee93af48d69935d602fea3a40d3afdf5f6dcd847c0ef11968e36e6"
+    },
+    {
+      "path": "private_browsing.VisualElementsManifest.xml",
+      "bytes": 427,
+      "sha256": "a1aec21d11d3020cc22a670ddf1a606924617117fdf00c9f9ebe2233f0737206"
+    },
+    {
+      "path": "PrivateBrowsing_150.png",
+      "bytes": 28342,
+      "sha256": "401f67edeb72f9e4c07244870e8d8df74e062b59a6805b26cb3bf068375c94de",
+      "format": "PNG",
+      "width": 300,
+      "height": 300,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "PrivateBrowsing_70.png",
+      "bytes": 9784,
+      "sha256": "c196e0275d5dffc8c9c2ab70ede14376895684947790d749e692167d687b8579",
+      "format": "PNG",
+      "width": 142,
+      "height": 142,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "scripts/generate_assets.py",
+      "bytes": 13794,
+      "sha256": "d6c1915da20e3d14ab4efb27c5afe3940586509217fc92ba39100415a856e154"
+    },
+    {
+      "path": "stubinstaller/bgstub.jpg",
+      "bytes": 67784,
+      "sha256": "47512bf7924a143a8482460888e3c90a76eacf62e32b2d60612ac874e0afb221",
+      "format": "JPEG",
+      "width": 1344,
+      "height": 822,
+      "mode": "RGB",
+      "frames": 1
+    },
+    {
+      "path": "stubinstaller/installing_page.css",
+      "bytes": 785,
+      "sha256": "59746f8e7af2f2efc60387cd8af150320bbca68958f301b1710f9a4fc9047bc2"
+    },
+    {
+      "path": "stubinstaller/profile_cleanup_page.css",
+      "bytes": 464,
+      "sha256": "f5b1d32f47b89b95938eab7eaa509bc73822129597628b359efd93d24069e6ff"
+    },
+    {
+      "path": "VisualElements_150.png",
+      "bytes": 30422,
+      "sha256": "30aeb81626d3c6c3268dd29e6f1869e399e7591980dc9d8d89dbbcd5e5aeb30e",
+      "format": "PNG",
+      "width": 300,
+      "height": 300,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "VisualElements_70.png",
+      "bytes": 9747,
+      "sha256": "ebc55c7881848513c72ee61c154ba873c05e9eb776a1ebf60e21d6cfa612bc14",
+      "format": "PNG",
+      "width": 142,
+      "height": 142,
+      "mode": "RGBA",
+      "frames": 1
+    },
+    {
+      "path": "wizHeader.bmp",
+      "bytes": 25818,
+      "sha256": "75c9c6f8b62a93b5860ed85b3fa80dc67c532fbec797dd03fb63327e7a068e98",
+      "format": "BMP",
+      "width": 150,
+      "height": 57,
+      "mode": "RGB",
+      "frames": 1
+    },
+    {
+      "path": "wizHeaderRTL.bmp",
+      "bytes": 25818,
+      "sha256": "12a646dd3c6342c480f96457d5d41d17c59b3e1016e2e91073933a6d11a794f8",
+      "format": "BMP",
+      "width": 150,
+      "height": 57,
+      "mode": "RGB",
+      "frames": 1
+    },
+    {
+      "path": "wizWatermark.bmp",
+      "bytes": 154542,
+      "sha256": "d72538e7cf7414417300aef4981218cd25fe38a445cca38876e8b438779987ab",
+      "format": "BMP",
+      "width": 164,
+      "height": 314,
+      "mode": "RGB",
+      "frames": 1
+    }
+  ]
+}

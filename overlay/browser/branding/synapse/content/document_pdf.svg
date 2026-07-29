@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Synapse document">
+  <defs>
+    <linearGradient id="page" x1="14" y1="7" x2="53" y2="59" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#24215A"/>
+      <stop offset="1" stop-color="#11112F"/>
+    </linearGradient>
+  </defs>
+  <path d="M14 5h24l13 13v41H14z" fill="url(#page)" stroke="#5A58B2" stroke-width="3"/>
+  <path d="M38 5v14h13" fill="none" stroke="#65F4FF" stroke-width="3"/>
+  <path d="M23 33h19M23 41h16M23 49h12" stroke="#4DE7F5" stroke-linecap="round" stroke-width="3"/>
+</svg>

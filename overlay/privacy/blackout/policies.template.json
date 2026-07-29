@@ -1,0 +1,269 @@
+{
+  "policies": {
+    "DisableAppUpdate": true,
+    "DisableFirefoxAccounts": true,
+    "DisableFirefoxScreenshots": true,
+    "DisableFirefoxStudies": true,
+    "DisableFormHistory": true,
+    "DisablePocket": true,
+    "DisableProfileImport": true,
+    "DisableSystemAddonUpdate": true,
+    "DisableTelemetry": true,
+    "ExtensionUpdate": false,
+    "AutofillAddressEnabled": false,
+    "AutofillCreditCardEnabled": false,
+    "OfferToSaveLogins": false,
+    "PasswordManagerEnabled": false,
+    "PrintingEnabled": false,
+    "PromptForDownloadLocation": true,
+    "FirefoxSuggest": {
+      "WebSuggestions": false,
+      "SponsoredSuggestions": false,
+      "ImproveSuggest": false,
+      "OnlineEnabled": false,
+      "Locked": true
+    },
+    "GenerativeAI": {
+      "Enabled": false,
+      "Locked": true
+    },
+    "UserMessaging": {
+      "WhatsNew": false,
+      "ExtensionRecommendations": false,
+      "FeatureRecommendations": false,
+      "UrlbarInterventions": false,
+      "SkipOnboarding": true,
+      "MoreFromMozilla": false,
+      "FirefoxLabs": false,
+      "Locked": true
+    },
+    "ExtensionSettings": {
+      "*": {
+        "installation_mode": "blocked",
+        "blocked_install_message": "Extensions are disabled in Synapse Blackout."
+      }
+    },
+    "SanitizeOnShutdown": {
+      "Cache": true,
+      "Cookies": true,
+      "Downloads": true,
+      "FormData": true,
+      "History": true,
+      "Sessions": true,
+      "SiteSettings": true,
+      "OfflineApps": true,
+      "Locked": true
+    },
+    "Preferences": {
+      "app.normandy.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "app.shield.optoutstudies.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.cache.disk.enable": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.download.manager.addToRecentDocs": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.newtabpage.activity-stream.feeds.telemetry": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.newtabpage.activity-stream.telemetry": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.newtabpage.activity-stream.telemetry.privatePing.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.newtabpage.activity-stream.showSponsored": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.newtabpage.activity-stream.system.showSponsored": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.newtabpage.activity-stream.showSponsoredTopSites": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.privatebrowsing.autostart": {
+        "Value": true,
+        "Status": "locked"
+      },
+      "browser.sessionstore.resume_from_crash": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "datareporting.healthreport.uploadEnabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "datareporting.policy.dataSubmissionEnabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "datareporting.usage.uploadEnabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "dom.security.https_only_mode": {
+        "Value": true,
+        "Status": "locked"
+      },
+      "dom.security.https_only_mode_pbm": {
+        "Value": true,
+        "Status": "locked"
+      },
+      "extensions.formautofill.addresses.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "extensions.formautofill.creditCards.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "media.getusermedia.screensharing.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "media.navigator.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "media.peerconnection.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "network.captive-portal-service.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "network.connectivity-service.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "network.dns.disablePrefetch": {
+        "Value": true,
+        "Status": "locked"
+      },
+      "network.dns.disablePrefetchFromHTTPS": {
+        "Value": true,
+        "Status": "locked"
+      },
+      "network.http.speculative-parallel-limit": {
+        "Value": 0,
+        "Status": "locked"
+      },
+      "network.lna.allow_top_level_navigation": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "network.lna.blocking": {
+        "Value": true,
+        "Status": "locked"
+      },
+      "network.lna.defer_https_check": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "network.lna.enabled": {
+        "Value": true,
+        "Status": "locked"
+      },
+      "network.lna.local-network-to-localhost.skip-checks": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "network.prefetch-next": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "network.protocol-handler.external-default": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "network.protocol-handler.external.mailto": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "network.proxy.allow_bypass": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "network.proxy.allow_hijacking_localhost": {
+        "Value": true,
+        "Status": "locked"
+      },
+      "network.proxy.no_proxies_on": {
+        "Value": "",
+        "Status": "locked"
+      },
+      "network.proxy.socks": {
+        "Value": "127.0.0.1",
+        "Status": "locked"
+      },
+      "network.proxy.socks5_remote_dns": {
+        "Value": true,
+        "Status": "locked"
+      },
+      "network.proxy.socks_port": {
+        "Value": 0,
+        "Status": "locked"
+      },
+      "network.proxy.socks_version": {
+        "Value": 5,
+        "Status": "locked"
+      },
+      "network.proxy.type": {
+        "Value": 1,
+        "Status": "locked"
+      },
+      "network.trr.mode": {
+        "Value": 5,
+        "Status": "locked"
+      },
+      "places.history.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "print.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "privacy.fingerprintingProtection.remoteOverrides.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "privacy.resistFingerprinting": {
+        "Value": true,
+        "Status": "locked"
+      },
+      "privacy.resistFingerprinting.letterboxing": {
+        "Value": true,
+        "Status": "locked"
+      },
+      "signon.autofillForms": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "signon.rememberSignons": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "toolkit.telemetry.archive.enabled": {
+        "Value": false,
+        "Status": "locked"
+      }
+    }
+  }
+}
+

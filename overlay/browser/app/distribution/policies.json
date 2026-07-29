@@ -1,0 +1,83 @@
+{
+  "policies": {
+    "DisableTelemetry": true,
+    "DisableFirefoxStudies": true,
+    "DisablePocket": true,
+    "FirefoxSuggest": {
+      "WebSuggestions": false,
+      "SponsoredSuggestions": false,
+      "ImproveSuggest": false,
+      "OnlineEnabled": false,
+      "Locked": true
+    },
+    "GenerativeAI": {
+      "Enabled": false,
+      "Locked": true
+    },
+    "UserMessaging": {
+      "WhatsNew": false,
+      "ExtensionRecommendations": false,
+      "FeatureRecommendations": false,
+      "UrlbarInterventions": false,
+      "SkipOnboarding": true,
+      "MoreFromMozilla": false,
+      "FirefoxLabs": false,
+      "Locked": true
+    },
+    "Preferences": {
+      "app.normandy.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "app.shield.optoutstudies.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.newtabpage.activity-stream.feeds.telemetry": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.newtabpage.activity-stream.telemetry": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.newtabpage.activity-stream.telemetry.privatePing.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.newtabpage.activity-stream.showSponsored": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.newtabpage.activity-stream.system.showSponsored": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.newtabpage.activity-stream.showSponsoredTopSites": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.tabs.crashReporting.sendReport": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "datareporting.healthreport.uploadEnabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "datareporting.policy.dataSubmissionEnabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "datareporting.usage.uploadEnabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "toolkit.telemetry.archive.enabled": {
+        "Value": false,
+        "Status": "locked"
+      }
+    }
+  }
+}
+

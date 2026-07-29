@@ -1,0 +1,50 @@
+/* SPDX-License-Identifier: MPL-2.0 */
+
+body {
+  color: #f4f7ff;
+}
+
+#label,
+#progress_background,
+#blurb {
+  margin: 20px 30px;
+  text-align: center;
+}
+
+#label {
+  margin-top: 100px;
+  margin-bottom: 20px;
+  font-size: 40px;
+  letter-spacing: 0.02em;
+}
+
+#progress_background {
+  width: 60%;
+  height: 24px;
+  margin-inline: auto;
+  padding: 3px;
+  border: 1px solid rgb(101 244 255 / 38%);
+  border-radius: 9px;
+  background-color: rgb(7 8 25 / 75%);
+}
+
+body.high-contrast #progress_background {
+  outline: solid;
+}
+
+#progress_bar {
+  width: 0%;
+  height: 100%;
+  margin: 0;
+  border-radius: 6px;
+  background: linear-gradient(90deg, #3c85ff, #52ecf2, #46f0b5);
+}
+
+body.high-contrast #progress_bar {
+  box-sizing: border-box;
+  border-top: 24px solid;
+}
+
+#blurb {
+  font-size: 20px;
+}

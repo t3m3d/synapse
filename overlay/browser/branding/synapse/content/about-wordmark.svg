@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 104" role="img" aria-label="Synapse">
+  <defs>
+    <linearGradient id="mark" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#65F4FF"/>
+      <stop offset="1" stop-color="#46F0B5"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(8 8)">
+    <path d="M44 2 80 16v27c0 24-14 43-36 52C22 86 8 67 8 43V16z"
+          fill="#171642" stroke="#514EA8" stroke-width="3"/>
+    <path d="M25 31c24 0 14 27 38 27M63 31c-24 0-14 27-38 27M25 58c12 0 19 7 19 20"
+          fill="none" stroke="url(#mark)" stroke-linecap="round" stroke-width="5"/>
+    <circle cx="24" cy="31" r="6" fill="#ECFDFF" stroke="#55EAF1" stroke-width="3"/>
+    <circle cx="64" cy="31" r="6" fill="#ECFDFF" stroke="#55EAF1" stroke-width="3"/>
+    <circle cx="44" cy="80" r="6" fill="#ECFDFF" stroke="#4CE9C4" stroke-width="3"/>
+  </g>
+  <text x="116" y="72" fill="#F4F7FF" font-family="Inter, Segoe UI, sans-serif"
+        font-size="58" font-weight="650" letter-spacing="4">SYNAPSE</text>
+</svg>

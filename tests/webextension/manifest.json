@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Synapse WebExtension Compatibility Probe",
+  "version": "0.1.0",
+  "description": "Minimal Firefox-compatible extension used by Synapse smoke tests.",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "compat-probe@synapse.local"
+    }
+  },
+  "permissions": [
+    "storage"
+  ],
+  "action": {
+    "default_title": "Synapse extension probe",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  }
+}
