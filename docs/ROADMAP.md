@@ -6,6 +6,7 @@
 - [x] Krypton core contracts pass.
 - [x] Gecko's Firefox WebExtension `browserAction` test passes.
 - [x] An unsigned Windows ZIP and NSIS development installer are packaged and inspected.
+- [x] An unsigned Windows MSIX is packaged and its manifest is inspected.
 
 Artifact mode still reuses compiled upstream application identity and
 executables. Blackout remains a non-certified policy contract and does not
@@ -36,9 +37,16 @@ not a public release.
 ## M2 — Krypton integration
 
 - [x] KryptScript owns diagnostics, additive overlay application, artifact
-  build, run, package, core-test, and WebExtension-test entry points.
+  build, run, ZIP/NSIS/MSIX packaging, core-test, and WebExtension-test entry
+  points.
 - [ ] Add checkout pinning, verified packaging, and provenance reporting.
-- [ ] Objective-K launcher manages profiles, privacy contexts, and diagnostics.
+- [x] Objective-K launcher starts separate Personal, Work, School, Creator, and
+  Second account Gecko profiles.
+- [x] Store Objective-K identity profiles in durable per-user application data
+  and preserve earlier build-tree profiles during one-time migration.
+- [ ] Register or migrate Objective-K identities into Gecko's selectable-profile
+  service without hiding previously created profiles.
+- [ ] Connect Objective-K privacy contexts and diagnostics to engine enforcement.
 - [ ] Implement Firefox native-message framing in pure Krypton.
 - [ ] Bundle an allowlisted Synapse system extension and one-shot Krypton host.
 - [ ] Add provenance, license, and update-policy reports.
@@ -74,5 +82,7 @@ not a public release.
 
 - [ ] Reproducible signed builds and installers.
 - [ ] Signed updates with rollback protection.
+- [ ] Package a Synapse launcher or enforce no-report crash handling at build
+  level for direct ZIP, NSIS, and MSIX shortcuts.
 - [ ] Software bill of materials and complete license bundle.
 - [ ] Emergency upstream-security merge and release procedure.

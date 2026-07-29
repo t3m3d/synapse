@@ -95,6 +95,7 @@ dist\synapse-tool.exe apply
 dist\synapse-tool.exe build
 dist\synapse-tool.exe run
 dist\synapse-tool.exe package
+dist\synapse-tool.exe store-dev
 dist\synapse-tool.exe test-core
 dist\synapse-tool.exe test-extension
 ```
@@ -106,12 +107,23 @@ automatically. Use `dist\synapse-tool.exe faster` for later frontend-only
 rebuilds.
 
 The extension command runs Gecko's existing `browserAction` browser test. Its
-test-only preference overrides allow the local harness to run; they are not
-changes to Synapse's shipped privacy defaults. `package` produces Gecko's ZIP
-and NSIS outputs; the current copies are `dist\Synapse-dev-win64.zip` and
-`dist\Synapse-dev-win64-setup.exe`. They are unsigned development artifacts,
-not a public release. Signing, update delivery, and release verification remain
-future work.
+test-only preference overrides and longer timeout allow the local harness to
+run; they do not change Synapse's shipped privacy defaults. `package` produces
+Gecko's ZIP and NSIS outputs; the current copies are
+`dist\Synapse-dev-win64.zip` and `dist\Synapse-dev-win64-setup.exe`.
+`store-dev` performs a fresh build and produces the unsigned development MSIX
+at `.synapse-build\release\SynapseBrowser_1.0.0.0_x64.msix` with the
+`t3m3d.SynapseBrowser` package identity. Set `SYNAPSE_MAKEAPPX` if the Windows
+SDK is installed somewhere other than the detected development path. These are
+development artifacts, not a public release. Signing, Store submission, update
+delivery, and release verification remain future work.
+
+Objective-K identities live under `%LOCALAPPDATA%\Synapse\Profiles`; older
+profiles under `.synapse-build\profiles` are copied forward without deleting
+the recovery source. Direct shortcuts in current development packages may show
+Gecko's crash dialog after a parent-process crash, but their reserved `.invalid`
+endpoint prevents successful upload. Release packaging still needs a Synapse
+launcher or build-level no-report enforcement.
 
 See [Architecture](docs/ARCHITECTURE.md), [Privacy](docs/PRIVACY.md),
 [Extensions](docs/EXTENSIONS.md), and the [Roadmap](docs/ROADMAP.md).

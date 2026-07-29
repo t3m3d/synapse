@@ -6,15 +6,35 @@ cannot support.
 
 ## Non-negotiable defaults
 
-- Synapse telemetry and crash-content submission are off.
+- Synapse telemetry and crash-content submission are off. Supported launchers
+  suppress the reporter UI and retain local minidumps for diagnosis.
+- Upstream country lookup and nearby Wi-Fi scanning are disabled.
 - Cookies, cache, storage, and network state are partitioned by top-level site.
 - Tracking protection and HTTPS-only behavior are enabled.
 - Speculative connections, link prefetch, and DNS prefetch are disabled.
 - Permission grants are narrow, visible, and revocable.
-- Private, Tor, I2P, and Blackout contexts use isolated profiles.
+- Private, Tor, I2P, and Blackout are blocked until their isolated-profile and
+  route controls are enforced.
 - Search suggestions do not leave the device until the user enables them.
 - Extension access is denied outside Shield unless explicitly supported; it is
   always denied in Blackout.
+
+## Security-service boundary
+
+Synapse currently retains Gecko's Safe Browsing and signed Remote Settings
+security feeds. Those services may contact upstream infrastructure, but they
+deliver phishing, malware, certificate, add-on, and other blocklists. Synapse
+will not silently remove those protections merely to claim zero upstream
+connections; replacement services need authenticated data and equivalent tests.
+
+Application updates are locked off only while this is an unsigned development
+build. A public release requires a signed Synapse update channel.
+
+Objective-K and KryptScript launch paths suppress crash UI and upload. Current
+ZIP, NSIS, and MSIX shortcuts launch the engine directly, so a parent-process
+crash may still show Gecko's reporter UI; its reserved `.invalid` endpoint
+prevents successful submission. Public packages require a Synapse launcher or
+build-level no-report enforcement.
 
 ## Route truthfulness
 

@@ -5,9 +5,10 @@
 ac_add_options --enable-artifact-builds
 ac_add_options --with-branding=browser/branding/synapse
 
-# Synapse does not ship Mozilla's crash submission client. Crashes remain
-# local and never open a dialog offering to upload diagnostics to Mozilla.
-ac_add_options --disable-crashreporter
+# Keep Gecko's local minidump handler for diagnostics. Supported Synapse
+# launchers set MOZ_CRASHREPORTER_NO_REPORT so no crash UI or upload starts.
+# The reserved endpoint also fails closed if Synapse is launched another way.
+ac_add_options --with-crashreporter-url=https://crash.synapse.invalid
 
 # The development browser retains Gecko's updater component so the Firefox
 # application contract remains complete. Distribution policy locks application

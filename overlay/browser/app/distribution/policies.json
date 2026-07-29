@@ -2,6 +2,7 @@
   "policies": {
     "DisableTelemetry": true,
     "DisableFirefoxStudies": true,
+    "DisableRemoteImprovements": true,
     "DisableFirefoxAccounts": true,
     "DisableAppUpdate": true,
     "DisablePocket": true,
@@ -13,7 +14,7 @@
           "URLTemplate": "https://duckduckgo.com/?q={searchTerms}",
           "Method": "GET",
           "Alias": "ddg",
-          "Description": "DuckDuckGo without a Synapse or Firefox tracking tag"
+          "Description": "DuckDuckGo without a Synapse tracking tag"
         }
       ],
       "Default": "Synapse Search",
@@ -42,6 +43,30 @@
       "Locked": true
     },
     "Preferences": {
+      "app.normandy.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "app.normandy.api_url": {
+        "Value": "",
+        "Status": "locked"
+      },
+      "app.shield.optoutstudies.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.region.network.url": {
+        "Value": "",
+        "Status": "locked"
+      },
+      "browser.region.network.scan": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.region.update.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
       "browser.safebrowsing.downloads.remote.enabled": {
         "Value": false,
         "Status": "locked"

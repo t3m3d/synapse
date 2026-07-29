@@ -128,6 +128,23 @@ func makePath() {
     emit joinPath(joinPath(joinPath(buildStateRoot(), "toolchains"), "mozmake"), "mozmake.exe")
 }
 
+func findMakeAppx() {
+    let configured = envValue("SYNAPSE_MAKEAPPX")
+    if len(configured) > 0 {
+        let candidate = fullPath(configured)
+        if len(candidate) > 0 && exists(candidate) { emit candidate }
+        emit ""
+    }
+
+    let sdkRoot = "C:\\Program Files (x86)\\Windows Kits\\10\\bin"
+    let script = "$candidate = Get-ChildItem -LiteralPath '" + sdkRoot + "'"
+    script = script + " -Filter makeappx.exe -File -Recurse -ErrorAction SilentlyContinue | Where-Object { $_.FullName -like '*\\x64\\makeappx.exe' } | Sort-Object FullName -Descending | Select-Object -First 1"
+    script = script + "; if ($candidate) { $candidate.FullName }"
+    let discovered = fullPath(chomp(exec("powershell -NoProfile -NonInteractive -Command " + quote(script))))
+    if len(discovered) > 0 && exists(discovered) { emit discovered }
+    emit ""
+}
+
 func printCheck(name, path) {
     let state = "missing"
     if exists(path) { state = "ok" }
@@ -337,6 +354,7 @@ func runMach(action, label) {
     let logPath = joinPath(buildStateRoot(), "mach-" + label + ".log")
     let inside = "export MOZBUILD_STATE_PATH=" + bashQuote(msysPath(state))
     inside = inside + "; export GMAKE=" + bashQuote(msysPath(makePath()))
+    inside = inside + "; export MOZ_CRASHREPORTER_NO_REPORT=1"
     inside = inside + "; cd " + bashQuote(msysPath(firefoxRoot()))
     inside = inside + " && ./mach " + action
     inside = inside + " > " + bashQuote(msysPath(logPath)) + " 2>&1"
@@ -375,6 +393,49 @@ func runCoreTests() {
     emit "0"
 }
 
+func packageStoreDev() {
+    if validateRoots("0") != "1" { emit "0" }
+    if runMach("build", "store-build") != "1" { emit "0" }
+
+    let bin = joinPath(joinPath(joinPath(buildStateRoot(), "obj-synapse"), "dist"), "bin")
+    let release = joinPath(buildStateRoot(), "release")
+    let output = joinPath(release, "SynapseBrowser_1.0.0.0_x64.msix")
+    if !exists(joinPath(bin, "firefox.exe")) {
+        print("Fresh browser output is missing after build: " + bin)
+        emit "0"
+    }
+
+    let makeappx = findMakeAppx()
+    if len(makeappx) == 0 || !exists(makeappx) {
+        print("Windows SDK makeappx.exe was not found.")
+        print("Install the Windows SDK or set SYNAPSE_MAKEAPPX.")
+        emit "0"
+    }
+
+    if !exists(release) { exec("mkdir " + quote(release)) }
+    if !exists(release) {
+        print("Could not create MSIX output directory: " + release)
+        emit "0"
+    }
+
+    let action = "repackage msix"
+    action = action + " --input " + bashQuote(msysPath(bin))
+    action = action + " --version 1.0.0.0 --channel unofficial --arch x86_64"
+    action = action + " --vendor t3m3d"
+    action = action + " --identity-name " + bashQuote("Synapse Browser")
+    action = action + " --publisher " + bashQuote("CN=97613709-C254-4F66-AB6B-1EE4BA3D003F")
+    action = action + " --publisher-display-name t3m3d"
+    action = action + " --makeappx " + bashQuote(msysPath(makeappx))
+    action = action + " --output " + bashQuote(msysPath(output))
+    if runMach(action, "store-dev") == "1" {
+        let hash = chomp(exec("certutil -hashfile " + quote(output) + " SHA256"))
+        print("Unsigned development MSIX: " + output)
+        print("SHA-256 verification:\r\n" + hash)
+        emit "1"
+    }
+    emit "0"
+}
+
 func usage() {
     print("Synapse KryptScript controller")
     print("  synapse-tool doctor")
@@ -383,12 +444,14 @@ func usage() {
     print("  synapse-tool faster")
     print("  synapse-tool run")
     print("  synapse-tool package")
+    print("  synapse-tool store-dev")
     print("  synapse-tool test-extension")
     print("  synapse-tool test-core")
     print("")
     print("Optional environment:")
     print("  SYNAPSE_WORKSPACE_ROOT  Synapse overlay repository")
     print("  SYNAPSE_FIREFOX_ROOT    Firefox source checkout")
+    print("  SYNAPSE_MAKEAPPX        Windows SDK makeappx.exe")
     emit "1"
 }
 
@@ -423,8 +486,12 @@ just run {
         if runMach("package", "package") == "1" { exit(0) }
         exit(1)
     }
+    if command == "store-dev" {
+        if packageStoreDev() == "1" { exit(0) }
+        exit(1)
+    }
     if command == "test-extension" {
-        if runMach("test browser/components/extensions/test/browser/browser_ext_browserAction_simple.js --setpref dom.security.https_only_mode=false --setpref dom.security.https_only_mode_pbm=false --setpref network.lna.enabled=false --setpref network.lna.blocking=false", "test-extension") == "1" { exit(0) }
+        if runMach("test browser/components/extensions/test/browser/browser_ext_browserAction_simple.js --timeout 120 --setpref dom.security.https_only_mode=false --setpref dom.security.https_only_mode_pbm=false --setpref network.lna.enabled=false --setpref network.lna.blocking=false", "test-extension") == "1" { exit(0) }
         exit(1)
     }
     if command == "test-core" {

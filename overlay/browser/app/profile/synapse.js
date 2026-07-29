@@ -111,6 +111,10 @@ pref("network.http.referer.disallowCrossSiteRelaxingDefault.top_navigation", tru
 // binary-reputation query that can disclose download metadata.
 pref("browser.safebrowsing.downloads.remote.enabled", false);
 pref("browser.safebrowsing.downloads.remote.url", "");
+// Do not send country or nearby Wi-Fi data to an upstream region service.
+pref("browser.region.network.url", "");
+pref("browser.region.network.scan", false);
+pref("browser.region.update.enabled", false);
 
 // Network-backed geolocation is opt-in work for a future Synapse provider.
 pref("geo.provider.network.url", "");
@@ -124,7 +128,8 @@ pref("browser.newtabpage.activity-stream.fxaccounts.endpoint", "");
 pref("dom.push.connection.enabled", false);
 pref("dom.push.serverURL", "");
 
-// Gecko's built-in profile switcher opens truly separate browser instances.
-// Each profile keeps independent cookies, logins, history, cache, and add-ons.
+// Keep Gecko's transitional profile UI available so profiles created by the
+// earlier prototype remain accessible. Objective-K identity registration and
+// migration into that service remain explicit roadmap work.
 pref("browser.profiles.enabled", true);
 pref("browser.profiles.created", false);

@@ -48,6 +48,11 @@ func isSafeAbsolutePath(path) {
     if path[1] != ":" { emit "0" }
     if path[2] != "\\" && path[2] != "/" { emit "0" }
     if contains(path, fromCharCode(34)) { emit "0" }
+    if contains(path, "'") { emit "0" }
+    if contains(path, "&") { emit "0" }
+    if contains(path, "|") { emit "0" }
+    if contains(path, "<") { emit "0" }
+    if contains(path, ">") { emit "0" }
     if contains(path, "%") || contains(path, "!") { emit "0" }
     if contains(path, fromCharCode(10)) || contains(path, fromCharCode(13)) { emit "0" }
     emit "1"
@@ -123,7 +128,19 @@ func identityFolder(label) {
     emit "personal"
 }
 
-func profilePath(workspace, identity) {
+func profileRoot() {
+    let local = fullPath(envValue("LOCALAPPDATA"))
+    if len(local) == 0 { emit "" }
+    emit joinPath(joinPath(local, "Synapse"), "Profiles")
+}
+
+func profilePath(identity) {
+    let root = profileRoot()
+    if len(root) == 0 { emit "" }
+    emit joinPath(root, "synapse-" + identityFolder(identity))
+}
+
+func legacyProfilePath(workspace, identity) {
     emit joinPath(
         joinPath(buildRoot(workspace), "profiles"),
         "synapse-" + identityFolder(identity)
@@ -158,7 +175,7 @@ func onIdentityHelp(self, cmd, sender) {
     let status = get(sender, "status")
     doTextBox(
         details,
-        "Browser identities\r\n\r\nEach identity has its own cookies, logins, history, extensions, cache, and open windows. Use Personal and Work at the same time to stay signed into different accounts on the same website. Closing one identity does not sign out the others.\r\n\r\nSynapse uses separate Gecko profile folders and -no-remote processes. It does not copy passwords or cookies between identities."
+        "Browser identities\r\n\r\nEach identity has its own cookies, logins, history, extensions, cache, and open windows. Use Personal and Work at the same time to stay signed into different accounts on the same website. Closing one identity does not sign out the others.\r\n\r\nSynapse uses durable Gecko profile folders under your Windows local app-data Synapse\\Profiles folder and starts -no-remote processes. It does not copy passwords or cookies between identities."
     )
     doText(status, "Choose an identity, then launch it")
     emit done()
@@ -188,20 +205,40 @@ func onLaunch(self, cmd, sender) {
     }
 
     let browser = browserPath(workspace)
-    let profile = profilePath(workspace, identity)
+    let profile = profilePath(identity)
+    let legacyProfile = legacyProfilePath(workspace, identity)
     if !exists(browser) {
         doText(status, "Launch blocked: build Synapse first")
         emit done()
     }
+    if len(profile) == 0 {
+        doText(status, "Launch blocked: Windows local app-data path is unavailable")
+        emit done()
+    }
 
-    let prepare = "if not exist " + quote(profile) + " mkdir " + quote(profile)
-    prepare = prepare + " & if exist " + quote(profile) + " (echo yes) else (echo no)"
-    if !contains(exec(prepare), "yes") {
+    // Copy an earlier prototype profile once. Keep its source as recovery data.
+    if !exists(profile) && exists(legacyProfile) {
+        let migrationProfile = profile + ".migrating"
+        let migrationCommand = "robocopy " + quote(legacyProfile) + " " + quote(migrationProfile)
+        migrationCommand = migrationCommand + " /E /COPY:DAT /DCOPY:T /R:2 /W:1 /NFL /NDL /NP >nul"
+        migrationCommand = migrationCommand + " & if errorlevel 8 (echo no) else ("
+        migrationCommand = migrationCommand + "if exist " + quote(profile) + " (echo no) else ("
+        migrationCommand = migrationCommand + "move /Y " + quote(migrationProfile) + " " + quote(profile) + " >nul"
+        migrationCommand = migrationCommand + " & if exist " + quote(profile) + " (echo yes) else (echo no)))"
+        if !contains(exec(migrationCommand), "yes") {
+            doText(status, "Launch blocked: older identity profile could not be migrated")
+            emit done()
+        }
+    }
+
+    let profileCommand = "if not exist " + quote(profile) + " mkdir " + quote(profile)
+    profileCommand = profileCommand + " & if exist " + quote(profile) + " (echo yes) else (echo no)"
+    if !contains(exec(profileCommand), "yes") {
         doText(status, "Launch blocked: development profile could not be created")
         emit done()
     }
 
-    let launch = "start " + quote("") + " " + quote(browser)
+    let launch = "set MOZ_CRASHREPORTER_NO_REPORT=1&& start " + quote("") + " " + quote(browser)
     launch = launch + " -no-remote -profile " + quote(profile)
     launch = launch + " & if errorlevel 1 (echo no) else (echo yes)"
     if !contains(exec(launch), "yes") {
@@ -215,8 +252,21 @@ func onLaunch(self, cmd, sender) {
 
 func onBuild(self, cmd, sender) {
     let status = get(sender, "status")
-    doText(status, "Build started in background")
-    exec("start \"Synapse build\" dist\\synapse-tool.exe build")
+    let workspace = workspaceRoot()
+    if len(workspace) == 0 {
+        doText(status, "Build blocked: Synapse workspace was not found")
+        emit done()
+    }
+
+    let tool = joinPath(joinPath(workspace, "dist"), "synapse-tool.exe")
+    if !exists(tool) {
+        doText(status, "Build blocked: Synapse controller was not found")
+        emit done()
+    }
+
+    let command = "start " + quote("Synapse build") + " " + quote(tool) + " build"
+    exec(command)
+    doText(status, "Build started; log: " + joinPath(buildRoot(workspace), "mach-build.log"))
     emit done()
 }
 
