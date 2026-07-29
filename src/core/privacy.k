@@ -17,72 +17,74 @@ func privacyModeLabel(mode) {
 }
 
 func privacyPolicy(mode) {
-    let policy = envNew()
-    policy = envSet(policy, "mode", mode)
-    policy = envSet(policy, "route", "direct")
-    policy = envSet(policy, "persistent", "1")
-    policy = envSet(policy, "anonymity", "none")
-    policy = envSet(policy, "telemetry", "deny")
-    policy = envSet(policy, "crashContent", "deny")
-    policy = envSet(policy, "partitionCookies", "1")
-    policy = envSet(policy, "partitionStorage", "1")
-    policy = envSet(policy, "partitionCache", "1")
-    policy = envSet(policy, "trackingProtection", "strict")
-    policy = envSet(policy, "httpsOnly", "1")
-    policy = envSet(policy, "dnsPrefetch", "deny")
-    policy = envSet(policy, "linkPrefetch", "deny")
-    policy = envSet(policy, "speculativeConnect", "deny")
-    policy = envSet(policy, "extensionAccess", "prompt")
-    policy = envSet(policy, "routeFallback", "deny")
-    policy = envSet(policy, "clipboard", "allow")
-    policy = envSet(policy, "screenCapture", "prompt")
-    policy = envSet(policy, "externalProtocols", "prompt")
-    policy = envSet(policy, "localNetwork", "prompt")
-    policy = envSet(policy, "downloads", "allow")
-    policy = envSet(policy, "printing", "allow")
-
-    if mode == "private" {
-        policy = envSet(policy, "persistent", "0")
-        policy = envSet(policy, "extensionAccess", "deny")
+    if mode == "private" || mode == "tor" || mode == "i2p" || mode == "blackout" {
+        emit mode
     }
+    emit "shield"
+}
 
-    if mode == "tor" {
-        policy = envSet(policy, "route", "tor")
-        policy = envSet(policy, "persistent", "0")
-        policy = envSet(policy, "anonymity", "tor-context")
-        policy = envSet(policy, "extensionAccess", "deny")
-        policy = envSet(policy, "localNetwork", "deny")
-        policy = envSet(policy, "externalProtocols", "deny")
+// Policies use an explicit accessor instead of Krypton's environment-map
+// primitive. Krypton 2.4.5's native macOS backend does not reliably return
+// environment maps across function boundaries.
+func privacyPolicyValue(policy, key) {
+    let mode = privacyPolicy(policy)
+    if key == "mode" { emit mode }
+
+    if key == "route" {
+        if mode == "tor" || mode == "blackout" { emit "tor" }
+        if mode == "i2p" { emit "i2p" }
+        emit "direct"
     }
-
-    if mode == "i2p" {
-        policy = envSet(policy, "route", "i2p")
-        policy = envSet(policy, "persistent", "0")
-        policy = envSet(policy, "anonymity", "i2p-context")
-        policy = envSet(policy, "extensionAccess", "deny")
-        policy = envSet(policy, "localNetwork", "deny")
-        policy = envSet(policy, "clearnet", "deny")
-        policy = envSet(policy, "externalProtocols", "deny")
+    if key == "persistent" {
+        if mode == "shield" { emit "1" }
+        emit "0"
     }
-
-    if mode == "blackout" {
-        policy = envSet(policy, "route", "tor")
-        policy = envSet(policy, "persistent", "0")
-        policy = envSet(policy, "anonymity", "maximum-isolation-goal")
-        policy = envSet(policy, "extensionAccess", "deny")
-        policy = envSet(policy, "localNetwork", "deny")
-        policy = envSet(policy, "externalProtocols", "deny")
-        policy = envSet(policy, "clipboard", "deny")
-        policy = envSet(policy, "screenCapture", "deny")
-        policy = envSet(policy, "downloads", "quarantine")
-        policy = envSet(policy, "printing", "deny")
-        policy = envSet(policy, "history", "deny")
-        policy = envSet(policy, "passwordStorage", "deny")
-        policy = envSet(policy, "formAutofill", "deny")
-        policy = envSet(policy, "webrtc", "deny")
+    if key == "anonymity" {
+        if mode == "tor" { emit "tor-context" }
+        if mode == "i2p" { emit "i2p-context" }
+        if mode == "blackout" { emit "maximum-isolation-goal" }
+        emit "none"
     }
-
-    emit policy
+    if key == "telemetry" || key == "crashContent" ||
+       key == "dnsPrefetch" || key == "linkPrefetch" ||
+       key == "speculativeConnect" || key == "routeFallback" {
+        emit "deny"
+    }
+    if key == "partitionCookies" || key == "partitionStorage" ||
+       key == "partitionCache" || key == "httpsOnly" {
+        emit "1"
+    }
+    if key == "trackingProtection" { emit "strict" }
+    if key == "extensionAccess" {
+        if mode == "shield" { emit "prompt" }
+        emit "deny"
+    }
+    if key == "localNetwork" || key == "externalProtocols" {
+        if mode == "tor" || mode == "i2p" || mode == "blackout" { emit "deny" }
+        emit "prompt"
+    }
+    if key == "clearnet" {
+        if mode == "i2p" { emit "deny" }
+        emit "allow"
+    }
+    if key == "clipboard" {
+        if mode == "blackout" { emit "deny" }
+        emit "allow"
+    }
+    if key == "screenCapture" {
+        if mode == "blackout" { emit "deny" }
+        emit "prompt"
+    }
+    if key == "downloads" {
+        if mode == "blackout" { emit "quarantine" }
+        emit "allow"
+    }
+    if key == "printing" || key == "history" || key == "passwordStorage" ||
+       key == "formAutofill" || key == "webrtc" {
+        if mode == "blackout" { emit "deny" }
+        emit "allow"
+    }
+    emit ""
 }
 
 func privacySummary(mode) {
@@ -102,7 +104,7 @@ func privacySummary(mode) {
 }
 
 func privacyAllowsFallback(mode) {
-    emit envGet(privacyPolicy(mode), "routeFallback") != "deny"
+    emit privacyPolicyValue(privacyPolicy(mode), "routeFallback") != "deny"
 }
 
 func privacyIsCertified(mode) {
