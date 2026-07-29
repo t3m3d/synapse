@@ -116,6 +116,23 @@ future work.
 See [Architecture](docs/ARCHITECTURE.md), [Privacy](docs/PRIVACY.md),
 [Extensions](docs/EXTENSIONS.md), and the [Roadmap](docs/ROADMAP.md).
 
+### macOS development
+
+On macOS, keep the Firefox checkout at `~/mozilla-source/firefox` (or set
+`SYNAPSE_FIREFOX_ROOT`) and run:
+
+```bash
+tools/synapse-macos.sh doctor
+tools/synapse-macos.sh test-core
+tools/synapse-macos.sh apply
+tools/synapse-macos.sh build
+tools/synapse-macos.sh run
+```
+
+The macOS controller uses the same tracked overlay and privacy patch as the
+Windows controller. It keeps build state and profiles in `.synapse-build` and
+does not delete files from the upstream Firefox checkout.
+
 ## Licensing
 
 Original Synapse source in this repository is licensed under GPL-3.0. Gecko

@@ -16,7 +16,14 @@ ac_add_options --disable-crashreporter
 # Keep the application output separate from any upstream baseline build.
 mk_add_options MOZ_OBJDIR=@SYNAPSE_WORKSPACE_NATIVE@/.synapse-build/obj-synapse
 
-# Keep downloaded build state and the selected make executable under this
-# Synapse workspace rather than the user's global Mozilla state directory.
+# Keep downloaded build state under this Synapse workspace rather than the
+# user's global Mozilla state directory.
 export MOZBUILD_STATE_PATH="@SYNAPSE_WORKSPACE_NATIVE@/.synapse-build/mozbuild"
-export GMAKE="@SYNAPSE_WORKSPACE_NATIVE@/.synapse-build/toolchains/mozmake/mozmake.exe"
+
+# MozillaBuild uses the Synapse-managed mozmake binary. macOS uses the build
+# tool selected by mach, so it must not inherit this Windows-only path.
+case "$(uname -s)" in
+  MINGW*|MSYS*|CYGWIN*)
+    export GMAKE="@SYNAPSE_WORKSPACE_NATIVE@/.synapse-build/toolchains/mozmake/mozmake.exe"
+    ;;
+esac

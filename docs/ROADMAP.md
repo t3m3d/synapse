@@ -6,6 +6,10 @@
 - [x] Krypton core contracts pass.
 - [x] Gecko's Firefox WebExtension `browserAction` test passes.
 - [x] An unsigned Windows ZIP and NSIS development installer are packaged and inspected.
+- [x] A native macOS controller applies, builds, runs, packages, and tests the
+  shared Synapse overlay.
+- [ ] Verify the first branded macOS artifact build on a complete Firefox
+  checkout.
 
 Artifact mode still reuses compiled upstream application identity and
 executables. Blackout remains a non-certified policy contract and does not
