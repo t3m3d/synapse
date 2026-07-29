@@ -51,7 +51,8 @@ The current Windows development build:
 
 - builds in Gecko artifact mode and launches with Synapse branding;
 - passes the Krypton core privacy/navigation/extension contracts; and
-- passes Gecko's Firefox WebExtension `browserAction` test.
+- passes Gecko's Firefox WebExtension `browserAction` test; and
+- produces an inspected unsigned ZIP and NSIS development installer.
 
 Artifact mode rebuilds the frontend and branding layers while reusing downloaded
 compiled Gecko application artifacts. The running development build therefore
@@ -93,6 +94,7 @@ dist\synapse-tool.exe doctor
 dist\synapse-tool.exe apply
 dist\synapse-tool.exe build
 dist\synapse-tool.exe run
+dist\synapse-tool.exe package
 dist\synapse-tool.exe test-core
 dist\synapse-tool.exe test-extension
 ```
@@ -105,9 +107,11 @@ rebuilds.
 
 The extension command runs Gecko's existing `browserAction` browser test. Its
 test-only preference overrides allow the local harness to run; they are not
-changes to Synapse's shipped privacy defaults. `package` is exposed by the
-controller for development, but packaging, signing, update delivery, and
-release verification are not complete.
+changes to Synapse's shipped privacy defaults. `package` produces Gecko's ZIP
+and NSIS outputs; the current copies are `dist\Synapse-dev-win64.zip` and
+`dist\Synapse-dev-win64-setup.exe`. They are unsigned development artifacts,
+not a public release. Signing, update delivery, and release verification remain
+future work.
 
 See [Architecture](docs/ARCHITECTURE.md), [Privacy](docs/PRIVACY.md),
 [Extensions](docs/EXTENSIONS.md), and the [Roadmap](docs/ROADMAP.md).

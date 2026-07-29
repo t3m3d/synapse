@@ -5,12 +5,13 @@
 - [x] A Synapse-branded Windows artifact build launches.
 - [x] Krypton core contracts pass.
 - [x] Gecko's Firefox WebExtension `browserAction` test passes.
+- [x] An unsigned Windows ZIP and NSIS development installer are packaged and inspected.
 
 Artifact mode still reuses compiled upstream application identity and
 executables. Blackout remains a non-certified policy contract and does not
 launch until Tor-only routing, egress controls, ephemeral cleanup, and leak
-tests enforce it end to end. A passing development build is not a packaged
-release.
+tests enforce it end to end. The unsigned packages are development outputs,
+not a public release.
 
 ## M0 — Foundation
 
@@ -30,12 +31,12 @@ release.
 - [x] Pass Gecko's Firefox WebExtension `browserAction` test.
 - [ ] Verify signed-XPI install, toolbar action, and content script behavior in
   a clean dedicated Synapse profile.
-- [ ] Package the Windows build.
+- [x] Package the Windows build.
 
 ## M2 — Krypton integration
 
 - [x] KryptScript owns diagnostics, additive overlay application, artifact
-  build, run, core-test, and WebExtension-test entry points.
+  build, run, package, core-test, and WebExtension-test entry points.
 - [ ] Add checkout pinning, verified packaging, and provenance reporting.
 - [ ] Objective-K launcher manages profiles, privacy contexts, and diagnostics.
 - [ ] Implement Firefox native-message framing in pure Krypton.
