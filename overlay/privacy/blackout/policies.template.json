@@ -55,15 +55,23 @@
       "Locked": true
     },
     "Preferences": {
-      "app.normandy.enabled": {
-        "Value": false,
-        "Status": "locked"
-      },
-      "app.shield.optoutstudies.enabled": {
-        "Value": false,
-        "Status": "locked"
-      },
       "browser.cache.disk.enable": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.crashReports.onDemand": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.crashReports.requestedNeverShowAgain": {
+        "Value": true,
+        "Status": "locked"
+      },
+      "browser.crashReports.unsubmittedCheck.autoSubmit2": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.crashReports.unsubmittedCheck.enabled": {
         "Value": false,
         "Status": "locked"
       },
@@ -103,15 +111,15 @@
         "Value": false,
         "Status": "locked"
       },
-      "datareporting.healthreport.uploadEnabled": {
+      "browser.tabs.crashReporting.includeURL": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.tabs.crashReporting.sendReport": {
         "Value": false,
         "Status": "locked"
       },
       "datareporting.policy.dataSubmissionEnabled": {
-        "Value": false,
-        "Status": "locked"
-      },
-      "datareporting.usage.uploadEnabled": {
         "Value": false,
         "Status": "locked"
       },
@@ -256,10 +264,6 @@
         "Status": "locked"
       },
       "signon.rememberSignons": {
-        "Value": false,
-        "Status": "locked"
-      },
-      "toolkit.telemetry.archive.enabled": {
         "Value": false,
         "Status": "locked"
       }

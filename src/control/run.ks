@@ -2,10 +2,137 @@
 // Objective-K Synapse launcher and privacy-context control surface.
 
 import "k:okui"
+import "k:proc_ex"
 import "../core/privacy.k"
 
-func bind(control, mode, details, status) {
+func quote(value) {
+    emit fromCharCode(34) + value + fromCharCode(34)
+}
+
+func chomp(value) {
+    let end = len(value)
+    while end > 0 {
+        let code = charCode(value[end - 1])
+        if code == 10 || code == 13 || code == 32 || code == 9 { end -= 1 }
+        else { break }
+    }
+    emit substring(value, 0, end)
+}
+
+func winSlash() { emit fromCharCode(92) }
+
+func joinPath(base, child) {
+    emit base + winSlash() + child
+}
+
+func exists(path) {
+    let output = exec("if exist " + quote(path) + " (echo yes) else (echo no)")
+    emit contains(output, "yes")
+}
+
+func envValue(name) {
+    let raw = chomp(exec("set " + name))
+    let prefix = name + "="
+    if indexOf(raw, prefix) == 0 {
+        emit substring(raw, len(prefix), len(raw))
+    }
+    emit ""
+}
+
+func isSafeAbsolutePath(path) {
+    if len(path) < 4 { emit "0" }
+    let code = charCode(path[0])
+    let isUpper = code >= 65 && code <= 90
+    let isLower = code >= 97 && code <= 122
+    if !isUpper && !isLower { emit "0" }
+    if path[1] != ":" { emit "0" }
+    if path[2] != "\\" && path[2] != "/" { emit "0" }
+    if contains(path, fromCharCode(34)) { emit "0" }
+    if contains(path, "%") || contains(path, "!") { emit "0" }
+    if contains(path, fromCharCode(10)) || contains(path, fromCharCode(13)) { emit "0" }
+    emit "1"
+}
+
+func fullPath(path) {
+    if isSafeAbsolutePath(path) != "1" { emit "" }
+    emit chomp(exec("for %I in (" + quote(path) + ") do @echo %~fI"))
+}
+
+func directoryName(path) {
+    let index = len(path) - 1
+    while index >= 0 {
+        if path[index] == "\\" || path[index] == "/" {
+            emit substring(path, 0, index)
+        }
+        index -= 1
+    }
+    emit ""
+}
+
+func isWorkspace(path) {
+    let control = joinPath(joinPath(joinPath(path, "src"), "control"), "run.ks")
+    let state = joinPath(path, ".synapse-build")
+    if exists(control) && exists(state) { emit "1" }
+    emit "0"
+}
+
+func findWorkspace(start) {
+    let candidate = fullPath(start)
+    let depth = 0
+    while len(candidate) > 3 && depth < 8 {
+        if isWorkspace(candidate) == "1" { emit candidate }
+        let parent = fullPath(joinPath(candidate, ".."))
+        if len(parent) == 0 || parent == candidate { break }
+        candidate = parent
+        depth += 1
+    }
+    emit ""
+}
+
+func workspaceRoot() {
+    let configured = envValue("SYNAPSE_WORKSPACE_ROOT")
+    if len(configured) > 0 {
+        let configuredRoot = findWorkspace(configured)
+        if len(configuredRoot) > 0 { emit configuredRoot }
+    }
+
+    let imagePath = processImagePath(GetCurrentProcessId())
+    if len(imagePath) > 0 {
+        let imageRoot = findWorkspace(directoryName(imagePath))
+        if len(imageRoot) > 0 { emit imageRoot }
+    }
+
+    emit findWorkspace(chomp(exec("cd")))
+}
+
+func buildRoot(workspace) {
+    emit joinPath(workspace, ".synapse-build")
+}
+
+func browserPath(workspace) {
+    let root = buildRoot(workspace)
+    emit joinPath(joinPath(joinPath(joinPath(root, "obj-synapse"), "dist"), "bin"), "firefox.exe")
+}
+
+func identityFolder(label) {
+    if label == "Personal" { emit "personal" }
+    if label == "Work" { emit "work" }
+    if label == "School" { emit "school" }
+    if label == "Creator" { emit "creator" }
+    if label == "Second account" { emit "second-account" }
+    emit "personal"
+}
+
+func profilePath(workspace, identity) {
+    emit joinPath(
+        joinPath(buildRoot(workspace), "profiles"),
+        "synapse-" + identityFolder(identity)
+    )
+}
+
+func bind(control, mode, identity, details, status) {
     doSet(control, "mode", mode)
+    doSet(control, "identity", identity)
     doSet(control, "details", details)
     doSet(control, "status", status)
     emit done()
@@ -26,14 +153,27 @@ func showMode(sender) {
     emit done()
 }
 
+func onIdentityHelp(self, cmd, sender) {
+    let details = get(sender, "details")
+    let status = get(sender, "status")
+    doTextBox(
+        details,
+        "Browser identities\r\n\r\nEach identity has its own cookies, logins, history, extensions, cache, and open windows. Use Personal and Work at the same time to stay signed into different accounts on the same website. Closing one identity does not sign out the others.\r\n\r\nSynapse uses separate Gecko profile folders and -no-remote processes. It does not copy passwords or cookies between identities."
+    )
+    doText(status, "Choose an identity, then launch it")
+    emit done()
+}
+
 func onDescribe(self, cmd, sender) {
     emit showMode(sender)
 }
 
 func onLaunch(self, cmd, sender) {
     let modeControl = get(sender, "mode")
+    let identityControl = get(sender, "identity")
     let status = get(sender, "status")
     let mode = privacyModeFromLabel(choice(modeControl))
+    let identity = choice(identityControl)
 
     // Never pretend an isolation mode is active before its engine checks land.
     if mode != "shield" {
@@ -41,14 +181,35 @@ func onLaunch(self, cmd, sender) {
         emit done()
     }
 
-    let browser = "C:\\mozilla-source\\firefox\\obj-synapse\\dist\\bin\\firefox.exe"
-    let profile = "C:\\mozilla-source\\profiles\\synapse-dev"
-    exec("if not exist \"C:\\mozilla-source\\profiles\" mkdir \"C:\\mozilla-source\\profiles\"")
-    exec("if not exist \"" + profile + "\" mkdir \"" + profile + "\"")
+    let workspace = workspaceRoot()
+    if len(workspace) == 0 {
+        doText(status, "Launch blocked: Synapse workspace was not found")
+        emit done()
+    }
 
-    let launch = "start \"\" \"" + browser + "\" -no-remote -profile \"" + profile + "\""
-    exec(launch)
-    doText(status, "Synapse development profile launched")
+    let browser = browserPath(workspace)
+    let profile = profilePath(workspace, identity)
+    if !exists(browser) {
+        doText(status, "Launch blocked: build Synapse first")
+        emit done()
+    }
+
+    let prepare = "if not exist " + quote(profile) + " mkdir " + quote(profile)
+    prepare = prepare + " & if exist " + quote(profile) + " (echo yes) else (echo no)"
+    if !contains(exec(prepare), "yes") {
+        doText(status, "Launch blocked: development profile could not be created")
+        emit done()
+    }
+
+    let launch = "start " + quote("") + " " + quote(browser)
+    launch = launch + " -no-remote -profile " + quote(profile)
+    launch = launch + " & if errorlevel 1 (echo no) else (echo yes)"
+    if !contains(exec(launch), "yes") {
+        doText(status, "Launch failed: Windows could not start Synapse")
+        emit done()
+    }
+
+    doText(status, identity + " opened in its own signed-in browser instance")
     emit done()
 }
 
@@ -70,8 +231,8 @@ just run {
     doFont(brand, fontFamily(mono(16), "Segoe UI Semibold"))
     label(win, "Private by design. Honest by default.", area(220, 417, 350, 24))
 
-    label(win, "Privacy context", area(28, 356, 150, 24))
-    let mode = choices(win, area(174, 352, 220, 160))
+    label(win, "Privacy mode", area(28, 356, 126, 24))
+    let mode = choices(win, area(154, 352, 186, 160))
     doAddChoice(mode, "Shield")
     doAddChoice(mode, "Private")
     doAddChoice(mode, "Tor")
@@ -79,21 +240,32 @@ just run {
     doAddChoice(mode, "Blackout")
     doChoose(mode, 0)
 
-    let describe = button(win, "Review policy", area(414, 352, 126, 32))
-    let launch = button(win, "Launch", area(552, 352, 126, 32))
+    label(win, "Browser identity", area(360, 356, 112, 24))
+    let identity = choices(win, area(470, 352, 142, 160))
+    doAddChoice(identity, "Personal")
+    doAddChoice(identity, "Work")
+    doAddChoice(identity, "School")
+    doAddChoice(identity, "Creator")
+    doAddChoice(identity, "Second account")
+    doChoose(identity, 0)
+    let identityHelp = button(win, "?", area(620, 352, 28, 32))
+    let launch = button(win, "Open", area(654, 352, 54, 32))
 
     let details = textBox(win, area(28, 102, 650, 224))
     doEditable(details, 0)
     doTextBox(details, "Shield\r\n\r\n" + privacySummary("shield"))
 
-    let build = button(win, "Build Synapse", area(28, 50, 142, 32))
-    let status = label(win, "Firefox source baseline", area(188, 55, 490, 24))
+    let describe = button(win, "What this mode means", area(28, 50, 164, 32))
+    let build = button(win, "Build Synapse", area(204, 50, 142, 32))
+    let status = label(win, "Gecko engine ready", area(364, 55, 314, 24))
 
-    bind(describe, mode, details, status)
-    bind(launch, mode, details, status)
+    bind(describe, mode, identity, details, status)
+    bind(identityHelp, mode, identity, details, status)
+    bind(launch, mode, identity, details, status)
     doSet(build, "status", status)
 
     doClick(describe, "synapse.describe", funcptr(onDescribe))
+    doClick(identityHelp, "synapse.identity.help", funcptr(onIdentityHelp))
     doClick(launch, "synapse.launch", funcptr(onLaunch))
     doClick(build, "synapse.build", funcptr(onBuild))
 

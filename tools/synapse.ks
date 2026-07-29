@@ -107,6 +107,10 @@ func msysPath(path) {
     emit normalized
 }
 
+func nativeForwardPath(path) {
+    emit replace(path, "\\", "/")
+}
+
 func bashQuote(value) {
     // Root validation rejects single quotes before this is called.
     emit "'" + value + "'"
@@ -114,6 +118,10 @@ func bashQuote(value) {
 
 func buildStateRoot() {
     emit joinPath(workspaceRoot(), ".synapse-build")
+}
+
+func mozbuildStateRoot() {
+    emit joinPath(buildStateRoot(), "mozbuild")
 }
 
 func makePath() {
@@ -178,8 +186,9 @@ func doctor() {
         if printCheck("Synapse overlay", joinPath(joinPath(workspace, "overlay"), "browser")) != "ok" { failures += 1 }
         if printCheck("Synapse mozconfig template", joinPath(joinPath(workspace, "config"), "mozconfig.in")) != "ok" { failures += 1 }
         if printCheck("Synapse make", makePath()) != "ok" { failures += 1 }
-        print("Build state: " + buildStateRoot())
-        print("Build state (MSYS): " + msysPath(buildStateRoot()))
+        print("Workspace (native): " + nativeForwardPath(workspace))
+        print("Mozilla build state: " + mozbuildStateRoot())
+        print("Mozilla build state (MSYS): " + msysPath(mozbuildStateRoot()))
     }
     if len(root) > 0 {
         if printCheck("Firefox source", joinPath(root, "mach")) != "ok" { failures += 1 }
@@ -238,8 +247,9 @@ func installMozconfig(workspace, root) {
     if backupMozconfig(target) != "1" { emit "0" }
 
     let rendered = readFile(templatePath)
+    rendered = replace(rendered, "@SYNAPSE_WORKSPACE_NATIVE@", nativeForwardPath(workspace))
     rendered = replace(rendered, "@SYNAPSE_WORKSPACE_MSYS@", msysPath(workspace))
-    if contains(rendered, "@SYNAPSE_WORKSPACE_MSYS@") {
+    if contains(rendered, "@SYNAPSE_WORKSPACE_NATIVE@") || contains(rendered, "@SYNAPSE_WORKSPACE_MSYS@") {
         print("mozconfig template still contains unresolved placeholders.")
         emit "0"
     }
@@ -323,8 +333,8 @@ func runMach(action, label) {
     if doctor() != "1" { emit "0" }
     if applyOverlay() != "1" { emit "0" }
 
-    let state = buildStateRoot()
-    let logPath = joinPath(state, "mach-" + label + ".log")
+    let state = mozbuildStateRoot()
+    let logPath = joinPath(buildStateRoot(), "mach-" + label + ".log")
     let inside = "export MOZBUILD_STATE_PATH=" + bashQuote(msysPath(state))
     inside = inside + "; export GMAKE=" + bashQuote(msysPath(makePath()))
     inside = inside + "; cd " + bashQuote(msysPath(firefoxRoot()))
@@ -346,6 +356,25 @@ func runMach(action, label) {
     emit "0"
 }
 
+func runCoreTests() {
+    let binary = joinPath(buildStateRoot(), "synapse-tests.exe")
+    if !exists(binary) {
+        print("Krypton core test binary is missing: " + binary)
+        print("Compile tests/run.ks before using test-core.")
+        emit "0"
+    }
+
+    print("Running Krypton core contracts...")
+    let output = exec(quote(binary) + " 2>&1 && echo __SYNAPSE_OK__ || echo __SYNAPSE_FAIL__")
+    if len(output) > 0 { print(output) }
+    if contains(output, "__SYNAPSE_OK__") {
+        print("Core tests: complete")
+        emit "1"
+    }
+    print("Core tests: failed")
+    emit "0"
+}
+
 func usage() {
     print("Synapse KryptScript controller")
     print("  synapse-tool doctor")
@@ -354,6 +383,8 @@ func usage() {
     print("  synapse-tool faster")
     print("  synapse-tool run")
     print("  synapse-tool package")
+    print("  synapse-tool test-extension")
+    print("  synapse-tool test-core")
     print("")
     print("Optional environment:")
     print("  SYNAPSE_WORKSPACE_ROOT  Synapse overlay repository")
@@ -390,6 +421,14 @@ just run {
     }
     if command == "package" {
         if runMach("package", "package") == "1" { exit(0) }
+        exit(1)
+    }
+    if command == "test-extension" {
+        if runMach("test browser/components/extensions/test/browser/browser_ext_browserAction_simple.js --setpref dom.security.https_only_mode=false --setpref dom.security.https_only_mode_pbm=false --setpref network.lna.enabled=false --setpref network.lna.blocking=false", "test-extension") == "1" { exit(0) }
+        exit(1)
+    }
+    if command == "test-core" {
+        if runCoreTests() == "1" { exit(0) }
         exit(1)
     }
 

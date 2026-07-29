@@ -2,7 +2,24 @@
   "policies": {
     "DisableTelemetry": true,
     "DisableFirefoxStudies": true,
+    "DisableFirefoxAccounts": true,
+    "DisableAppUpdate": true,
     "DisablePocket": true,
+    "SearchSuggestEnabled": false,
+    "SearchEngines": {
+      "Add": [
+        {
+          "Name": "Synapse Search",
+          "URLTemplate": "https://duckduckgo.com/?q={searchTerms}",
+          "Method": "GET",
+          "Alias": "ddg",
+          "Description": "DuckDuckGo without a Synapse or Firefox tracking tag"
+        }
+      ],
+      "Default": "Synapse Search",
+      "DefaultPrivate": "Synapse Search",
+      "PreventInstalls": false
+    },
     "FirefoxSuggest": {
       "WebSuggestions": false,
       "SponsoredSuggestions": false,
@@ -25,11 +42,39 @@
       "Locked": true
     },
     "Preferences": {
-      "app.normandy.enabled": {
+      "browser.safebrowsing.downloads.remote.enabled": {
         "Value": false,
         "Status": "locked"
       },
-      "app.shield.optoutstudies.enabled": {
+      "browser.safebrowsing.downloads.remote.url": {
+        "Value": "",
+        "Status": "locked"
+      },
+      "dom.push.connection.enabled": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "dom.push.serverURL": {
+        "Value": "",
+        "Status": "locked"
+      },
+      "geo.provider.network.url": {
+        "Value": "",
+        "Status": "locked"
+      },
+      "browser.crashReports.onDemand": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.crashReports.requestedNeverShowAgain": {
+        "Value": true,
+        "Status": "locked"
+      },
+      "browser.crashReports.unsubmittedCheck.autoSubmit2": {
+        "Value": false,
+        "Status": "locked"
+      },
+      "browser.crashReports.unsubmittedCheck.enabled": {
         "Value": false,
         "Status": "locked"
       },
@@ -61,19 +106,11 @@
         "Value": false,
         "Status": "locked"
       },
-      "datareporting.healthreport.uploadEnabled": {
+      "browser.tabs.crashReporting.includeURL": {
         "Value": false,
         "Status": "locked"
       },
       "datareporting.policy.dataSubmissionEnabled": {
-        "Value": false,
-        "Status": "locked"
-      },
-      "datareporting.usage.uploadEnabled": {
-        "Value": false,
-        "Status": "locked"
-      },
-      "toolkit.telemetry.archive.enabled": {
         "Value": false,
         "Status": "locked"
       }

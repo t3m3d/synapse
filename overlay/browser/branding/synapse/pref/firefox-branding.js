@@ -7,6 +7,7 @@ pref("startup.homepage_welcome_url", "");
 pref("startup.homepage_welcome_url.additional", "");
 pref("app.update.url.manual", "");
 pref("app.update.url.details", "");
+pref("app.update.auto", false);
 pref("app.update.interval", 86400);
 pref("app.update.promptWaitTime", 86400);
 pref("app.update.checkInstallTime.days", 2);

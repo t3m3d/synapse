@@ -1,3 +1,5 @@
+#filter dumbComments emptyLines substitution
+
 /* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -26,9 +28,13 @@ pref("datareporting.usage.uploadEnabled", false);
 pref("app.normandy.enabled", false);
 pref("app.normandy.api_url", "");
 pref("app.shield.optoutstudies.enabled", false);
+pref("breakpad.reportURL", "");
+pref("browser.crashReports.onDemand", false);
+pref("browser.crashReports.requestedNeverShowAgain", true);
 pref("browser.crashReports.unsubmittedCheck.enabled", false);
 pref("browser.crashReports.unsubmittedCheck.autoSubmit2", false);
 pref("browser.tabs.crashReporting.sendReport", false);
+pref("browser.tabs.crashReporting.includeURL", false);
 pref("browser.newtabpage.activity-stream.telemetry", false);
 pref("browser.newtabpage.activity-stream.feeds.telemetry", false);
 pref("browser.newtabpage.activity-stream.telemetry.privatePing.enabled", false);
@@ -101,3 +107,24 @@ pref("network.http.referer.XOriginTrimmingPolicy", 2);
 pref("network.http.referer.disallowCrossSiteRelaxingDefault", true);
 pref("network.http.referer.disallowCrossSiteRelaxingDefault.top_navigation", true);
 
+// Keep Gecko's local phishing and malware protection. Disable only the remote
+// binary-reputation query that can disclose download metadata.
+pref("browser.safebrowsing.downloads.remote.enabled", false);
+pref("browser.safebrowsing.downloads.remote.url", "");
+
+// Network-backed geolocation is opt-in work for a future Synapse provider.
+pref("geo.provider.network.url", "");
+pref("geo.enabled", false);
+
+// No vendor account, sync, or push connection starts in the background.
+pref("identity.fxaccounts.enabled", false);
+pref("identity.fxaccounts.toolbar.enabled", false);
+pref("identity.fxaccounts.telemetry.clientAssociationPing.enabled", false);
+pref("browser.newtabpage.activity-stream.fxaccounts.endpoint", "");
+pref("dom.push.connection.enabled", false);
+pref("dom.push.serverURL", "");
+
+// Gecko's built-in profile switcher opens truly separate browser instances.
+// Each profile keeps independent cookies, logins, history, cache, and add-ons.
+pref("browser.profiles.enabled", true);
+pref("browser.profiles.created", false);

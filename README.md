@@ -20,7 +20,9 @@ we replace product layers.
 ## Architecture
 
 The first milestone keeps the Firefox Desktop application intact and applies a
-Synapse-owned overlay. New services and orchestration use Krypton.
+Synapse-owned overlay. New services and orchestration use Krypton. The diagram
+below is the target process shape; the system extension and native host are not
+implemented yet.
 
 ```text
 Firefox Desktop application
@@ -43,6 +45,26 @@ Firefox chrome remains temporarily because extension toolbar actions, menus,
 permission prompts, and privileged APIs depend on it. Replacement happens
 incrementally without breaking those contracts.
 
+## Verified milestone
+
+The current Windows development build:
+
+- builds in Gecko artifact mode and launches with Synapse branding;
+- passes the Krypton core privacy/navigation/extension contracts; and
+- passes Gecko's Firefox WebExtension `browserAction` test.
+
+Artifact mode rebuilds the frontend and branding layers while reusing downloaded
+compiled Gecko application artifacts. The running development build therefore
+still has inherited internal executable names, application identity, diagnostic
+strings, and Gecko-required resource filenames. Full native builds and the
+compiled-identity work in M5 remove those development-stage inheritances.
+
+Blackout is currently a policy contract and fail-closed launcher choice, not an
+enforced anonymity environment. Tor-only routing, operating-system egress
+controls, ephemeral profile destruction, and leak tests must all land before
+Blackout can launch. Synapse makes no security certification or classification
+claim for the current build.
+
 ## Repository
 
 ```text
@@ -64,13 +86,28 @@ committing multi-gigabyte build output.
 
 Prerequisites are MozillaBuild 4.2+ and Krypton 2.4+. Bootstrap uses Firefox
 artifact mode first; full native builds begin when compiled branding or engine
-changes are required.
+changes are required. Run these commands from the Synapse repository root:
 
 ```powershell
 dist\synapse-tool.exe doctor
+dist\synapse-tool.exe apply
 dist\synapse-tool.exe build
 dist\synapse-tool.exe run
+dist\synapse-tool.exe test-core
+dist\synapse-tool.exe test-extension
 ```
+
+`apply` copies the tracked overlay into `C:\mozilla-source\firefox` without
+deleting upstream files, applies the small privacy-loader patch, and installs
+the generated `mozconfig`. `build`, `run`, and `test-extension` call `apply`
+automatically. Use `dist\synapse-tool.exe faster` for later frontend-only
+rebuilds.
+
+The extension command runs Gecko's existing `browserAction` browser test. Its
+test-only preference overrides allow the local harness to run; they are not
+changes to Synapse's shipped privacy defaults. `package` is exposed by the
+controller for development, but packaging, signing, update delivery, and
+release verification are not complete.
 
 See [Architecture](docs/ARCHITECTURE.md), [Privacy](docs/PRIVACY.md),
 [Extensions](docs/EXTENSIONS.md), and the [Roadmap](docs/ROADMAP.md).

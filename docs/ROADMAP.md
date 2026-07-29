@@ -1,5 +1,17 @@
 # Synapse roadmap
 
+## Verified development state
+
+- [x] A Synapse-branded Windows artifact build launches.
+- [x] Krypton core contracts pass.
+- [x] Gecko's Firefox WebExtension `browserAction` test passes.
+
+Artifact mode still reuses compiled upstream application identity and
+executables. Blackout remains a non-certified policy contract and does not
+launch until Tor-only routing, egress controls, ephemeral cleanup, and leak
+tests enforce it end to end. A passing development build is not a packaged
+release.
+
 ## M0 — Foundation
 
 - [x] Synapse name and product commitments.
@@ -11,16 +23,20 @@
 
 ## M1 — Working browser
 
-- [ ] Bootstrap canonical Firefox Git source in artifact mode.
-- [ ] Build and launch the untouched upstream baseline.
-- [ ] Apply Synapse display name, development branding, and safe defaults.
-- [ ] Launch Synapse with a clean dedicated profile.
-- [ ] Load a normal Firefox WebExtension and verify toolbar/content behavior.
+- [x] Bootstrap canonical Firefox Git source in artifact mode.
+- [ ] Record a separate untouched-upstream baseline comparison.
+- [x] Apply Synapse display name, development branding, and hardened defaults.
+- [x] Build and launch the branded artifact application.
+- [x] Pass Gecko's Firefox WebExtension `browserAction` test.
+- [ ] Verify signed-XPI install, toolbar action, and content script behavior in
+  a clean dedicated Synapse profile.
 - [ ] Package the Windows build.
 
 ## M2 — Krypton integration
 
-- [ ] KryptScript owns checkout pinning, overlay, build, run, package, and tests.
+- [x] KryptScript owns diagnostics, additive overlay application, artifact
+  build, run, core-test, and WebExtension-test entry points.
+- [ ] Add checkout pinning, verified packaging, and provenance reporting.
 - [ ] Objective-K launcher manages profiles, privacy contexts, and diagnostics.
 - [ ] Implement Firefox native-message framing in pure Krypton.
 - [ ] Bundle an allowlisted Synapse system extension and one-shot Krypton host.
@@ -46,7 +62,7 @@
 
 ## M5 — Greater separation
 
-- [ ] Switch to full builds for compiled identity and native integration.
+- [ ] Switch to full builds and replace inherited compiled application identity.
 - [ ] Move suitable product services from privileged JS into Krypton.
 - [ ] Keep the Gecko patch series small and upstream security merges routine.
 - [ ] Re-evaluate the future C ABI/custom embedder only after parity tests exist.

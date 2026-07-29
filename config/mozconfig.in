@@ -5,13 +5,18 @@
 ac_add_options --enable-artifact-builds
 ac_add_options --with-branding=browser/branding/synapse
 
-# Never let a development Synapse build enter Mozilla's Firefox update channel.
-ac_add_options --disable-updater
+# Synapse does not ship Mozilla's crash submission client. Crashes remain
+# local and never open a dialog offering to upload diagnostics to Mozilla.
+ac_add_options --disable-crashreporter
+
+# The development browser retains Gecko's updater component so the Firefox
+# application contract remains complete. Distribution policy locks application
+# updates off until Synapse has a signed update service.
 
 # Keep the application output separate from any upstream baseline build.
-mk_add_options MOZ_OBJDIR=@SYNAPSE_WORKSPACE_MSYS@/.synapse-build/obj-synapse
+mk_add_options MOZ_OBJDIR=@SYNAPSE_WORKSPACE_NATIVE@/.synapse-build/obj-synapse
 
 # Keep downloaded build state and the selected make executable under this
 # Synapse workspace rather than the user's global Mozilla state directory.
-export MOZBUILD_STATE_PATH="@SYNAPSE_WORKSPACE_MSYS@/.synapse-build/mozbuild"
-export GMAKE="@SYNAPSE_WORKSPACE_MSYS@/.synapse-build/toolchains/mozmake/mozmake.exe"
+export MOZBUILD_STATE_PATH="@SYNAPSE_WORKSPACE_NATIVE@/.synapse-build/mozbuild"
+export GMAKE="@SYNAPSE_WORKSPACE_NATIVE@/.synapse-build/toolchains/mozmake/mozmake.exe"
