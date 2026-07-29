@@ -21,6 +21,12 @@ func exists(path) {
     emit contains(result, "yes")
 }
 
+func winSlash() { emit fromCharCode(92) }
+
+func joinPath(base, child) {
+    emit base + winSlash() + child
+}
+
 func envValue(name) {
     let raw = chomp(exec("set " + name))
     let prefix = name + "="
@@ -59,9 +65,9 @@ func fullPath(path) {
 }
 
 func isWorkspaceRoot(path) {
-    if !exists(path + "\\tools\\synapse.ks") { emit "0" }
-    if !exists(path + "\\overlay\\browser") { emit "0" }
-    if !exists(path + "\\config\\mozconfig.in") { emit "0" }
+    if !exists(joinPath(joinPath(path, "tools"), "synapse.ks")) { emit "0" }
+    if !exists(joinPath(joinPath(path, "overlay"), "browser")) { emit "0" }
+    if !exists(joinPath(joinPath(path, "config"), "mozconfig.in")) { emit "0" }
     emit "1"
 }
 
@@ -73,7 +79,7 @@ func workspaceRoot() {
     let depth = 0
     while depth < 6 && len(candidate) > 3 {
         if isWorkspaceRoot(candidate) == "1" { emit candidate }
-        let parent = fullPath(candidate + "\\..")
+        let parent = fullPath(joinPath(candidate, ".."))
         if parent == candidate || len(parent) == 0 { break }
         candidate = parent
         depth += 1
@@ -107,11 +113,11 @@ func bashQuote(value) {
 }
 
 func buildStateRoot() {
-    emit workspaceRoot() + "\\.synapse-build"
+    emit joinPath(workspaceRoot(), ".synapse-build")
 }
 
 func makePath() {
-    emit buildStateRoot() + "\\toolchains\\mozmake\\mozmake.exe"
+    emit joinPath(joinPath(joinPath(buildStateRoot(), "toolchains"), "mozmake"), "mozmake.exe")
 }
 
 func printCheck(name, path) {
@@ -139,11 +145,11 @@ func validateRoots(showDetails) {
         print("Firefox root is missing or unsafe.")
         failures += 1
     } else {
-        if !exists(root + "\\mach") {
+        if !exists(joinPath(root, "mach")) {
             print("Firefox source missing mach: " + root)
             failures += 1
         }
-        if !exists(root + "\\browser\\branding") {
+        if !exists(joinPath(joinPath(root, "browser"), "branding")) {
             print("Firefox source missing browser\\branding: " + root)
             failures += 1
         }
@@ -169,14 +175,14 @@ func doctor() {
     if validateRoots("1") != "1" { failures += 1 }
     if printCheck("MozillaBuild", "C:\\mozilla-build\\start-shell.bat") != "ok" { failures += 1 }
     if len(workspace) > 0 {
-        if printCheck("Synapse overlay", workspace + "\\overlay\\browser") != "ok" { failures += 1 }
-        if printCheck("Synapse mozconfig template", workspace + "\\config\\mozconfig.in") != "ok" { failures += 1 }
+        if printCheck("Synapse overlay", joinPath(joinPath(workspace, "overlay"), "browser")) != "ok" { failures += 1 }
+        if printCheck("Synapse mozconfig template", joinPath(joinPath(workspace, "config"), "mozconfig.in")) != "ok" { failures += 1 }
         if printCheck("Synapse make", makePath()) != "ok" { failures += 1 }
         print("Build state: " + buildStateRoot())
         print("Build state (MSYS): " + msysPath(buildStateRoot()))
     }
     if len(root) > 0 {
-        if printCheck("Firefox source", root + "\\mach") != "ok" { failures += 1 }
+        if printCheck("Firefox source", joinPath(root, "mach")) != "ok" { failures += 1 }
     }
     if printCheck("Krypton frontend", "C:\\krypton\\kcc-bin.exe") != "ok" { failures += 1 }
     if printCheck("Krypton runtime", "C:\\krypton\\krypton_rt.dll") != "ok" { failures += 1 }
@@ -223,8 +229,8 @@ func backupMozconfig(target) {
 }
 
 func installMozconfig(workspace, root) {
-    let templatePath = workspace + "\\config\\mozconfig.in"
-    let target = root + "\\mozconfig"
+    let templatePath = joinPath(joinPath(workspace, "config"), "mozconfig.in")
+    let target = joinPath(root, "mozconfig")
     if !exists(templatePath) {
         print("Missing mozconfig template: " + templatePath)
         emit "0"
@@ -247,17 +253,56 @@ func installMozconfig(workspace, root) {
     emit "1"
 }
 
+func applyPrivacyPatch(workspace, root) {
+    let patchPath = joinPath(joinPath(joinPath(workspace, "overlay"), "privacy"), "privacy-loader.patch")
+    if !exists(patchPath) {
+        print("Missing privacy loader patch: " + patchPath)
+        emit "0"
+    }
+
+    let check = "git -C " + quote(root) + " apply --check " + quote(patchPath)
+    let checkOutput = exec(check + " >nul 2>&1 && echo __SYNAPSE_OK__ || echo __SYNAPSE_NO__")
+    if contains(checkOutput, "__SYNAPSE_OK__") {
+        let applyOutput = exec("git -C " + quote(root) + " apply " + quote(patchPath) + " 2>&1 && echo __SYNAPSE_OK__ || echo __SYNAPSE_FAIL__")
+        if len(applyOutput) > 0 { print(applyOutput) }
+        if contains(applyOutput, "__SYNAPSE_OK__") {
+            print("Applied Synapse privacy loader patch.")
+            emit "1"
+        }
+        print("Privacy loader patch failed while applying.")
+        emit "0"
+    }
+
+    let reverse = "git -C " + quote(root) + " apply --reverse --check " + quote(patchPath)
+    let reverseOutput = exec(reverse + " >nul 2>&1 && echo __SYNAPSE_OK__ || echo __SYNAPSE_NO__")
+    if contains(reverseOutput, "__SYNAPSE_OK__") {
+        print("Synapse privacy loader patch is already applied.")
+        emit "1"
+    }
+
+    print("Privacy loader patch does not apply cleanly in either direction.")
+    print("Source may have drifted; inspect: " + patchPath)
+    emit "0"
+}
+
 func applyOverlay() {
     if validateRoots("0") != "1" { emit "0" }
     let workspace = workspaceRoot()
     let root = firefoxRoot()
+    let sourceBrowser = joinPath(joinPath(workspace, "overlay"), "browser")
+    let destinationBrowser = joinPath(root, "browser")
 
-    print("Applying Synapse overlay without deleting upstream files...")
-    if copyOverlay(workspace + "\\overlay", root) != "1" { emit "0" }
-    if !exists(root + "\\browser\\branding\\synapse\\configure.sh") {
+    print("Applying Synapse browser overlay without deleting upstream files...")
+    if copyOverlay(sourceBrowser, destinationBrowser) != "1" { emit "0" }
+    if !exists(joinPath(joinPath(joinPath(joinPath(root, "browser"), "branding"), "synapse"), "configure.sh")) {
         print("Overlay verification failed: Synapse branding is missing.")
         emit "0"
     }
+    if !exists(joinPath(joinPath(joinPath(joinPath(root, "browser"), "app"), "profile"), "synapse.js")) {
+        print("Overlay verification failed: Synapse privacy preferences are missing.")
+        emit "0"
+    }
+    if applyPrivacyPatch(workspace, root) != "1" { emit "0" }
     if installMozconfig(workspace, root) != "1" { emit "0" }
     print("Apply: complete")
     emit "1"
@@ -279,7 +324,7 @@ func runMach(action, label) {
     if applyOverlay() != "1" { emit "0" }
 
     let state = buildStateRoot()
-    let logPath = state + "\\mach-" + label + ".log"
+    let logPath = joinPath(state, "mach-" + label + ".log")
     let inside = "export MOZBUILD_STATE_PATH=" + bashQuote(msysPath(state))
     inside = inside + "; export GMAKE=" + bashQuote(msysPath(makePath()))
     inside = inside + "; cd " + bashQuote(msysPath(firefoxRoot()))
