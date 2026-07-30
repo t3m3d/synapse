@@ -70,7 +70,8 @@ A tab belongs to an immutable browsing context:
 - `shield`: direct route, hardened and partitioned.
 - `private`: direct route, ephemeral storage.
 - `tor`: Tor route, ephemeral storage and Tor-safe constraints.
-- `i2p`: I2P route, isolated storage and I2P-only resolution by default.
+- `i2p`: local I2P+ proxy route, dedicated persistent storage, and DIRECT
+  fallback prefs disabled; the router's outproxy policy may allow clearnet.
 - `blackout`: Tor-only maximum isolation, ephemeral state, extensions disabled,
   and controlled data egress.
 

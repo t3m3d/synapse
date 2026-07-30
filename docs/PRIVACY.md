@@ -10,14 +10,17 @@ cannot support.
   suppress the reporter UI and retain local minidumps for diagnosis.
 - Upstream country lookup and nearby Wi-Fi scanning are disabled.
 - Cookies, cache, storage, and network state are partitioned by top-level site.
-- Tracking protection and HTTPS-only behavior are enabled.
+- Tracking protection is enabled. Direct contexts use HTTPS-only; I2P mode
+  allows HTTP because many I2P services do not offer HTTPS.
 - Speculative connections, link prefetch, and DNS prefetch are disabled.
 - Permission grants are narrow, visible, and revocable.
-- Private, Tor, I2P, and Blackout are blocked until their isolated-profile and
-  route controls are enforced.
+- Private, Tor, and Blackout are blocked until their isolated-profile and route
+  controls are enforced. I2P launches only through its dedicated profile after
+  the local I2P+ proxy readiness gate passes.
 - Search suggestions do not leave the device until the user enables them.
-- Extension access is denied outside Shield unless explicitly supported; it is
-  always denied in Blackout.
+- Extension installation is disabled by default outside Shield and is a denial
+  goal for Blackout. I2P does not yet have immutable or attested extension
+  denial.
 
 ## Security-service boundary
 
@@ -45,11 +48,37 @@ The interface always shows one of these route labels:
 | Shield | Direct | Partitioned | Hardened browsing, not anonymous |
 | Private | Direct | Ephemeral | Private state, not anonymous |
 | Tor | Tor-only | Ephemeral | Tor context only |
-| I2P | I2P-only | Isolated | I2P context only |
+| I2P | Local I2P+ HTTP proxy | Durable, isolated by mode and identity | Traffic is handed to I2P+; router outproxy policy may permit clearnet |
 | Blackout | Tor-only | Ephemeral, locked egress | Maximum-isolation goal |
 
-A failed Tor, I2P, or Blackout bootstrap blocks navigation instead of silently
-falling back to direct networking.
+When an enforced Tor, I2P, or Blackout route is unavailable, Synapse blocks
+launch or navigation instead of silently falling back to direct networking.
+The current I2P readiness gate proves only that the local proxy port accepts TCP.
+
+## Windows I2P+ development profile
+
+Windows I2P mode creates a durable Gecko profile for each mode-and-identity pair,
+so I2P Personal never shares browser state with Shield Personal. The launcher
+requires a TCP connection to `127.0.0.1:4444` before it creates or opens the
+profile. That check neither authenticates the listener nor proves the router has
+bootstrapped.
+
+Both HTTP and HTTPS use the I2P+ HTTP proxy on port 4444; SOCKS is unused. The
+generated `user.js` disables direct proxy failover and bypass, native DNS, DoH,
+WebRTC, HTTP/3, speculative connections, prefetch, connectivity checks, and
+captive-portal checks. Most `.i2p` sites need an explicit `http://` URL. The
+installation preference is disabled because proxy-capable extensions can replace
+the route, but existing or sideloaded extensions are not yet immutably blocked or
+attested.
+
+This mode hands browser traffic to I2P+ while startup prefs disable ordinary
+DIRECT fallback. It must not be described as `.i2p`-only: the router may send clearnet
+destinations through its configured outproxy. `user.js` and live preferences
+are also mutable browser controls. Authenticated router readiness, build-level
+immutable proxy enforcement, router outproxy policy, operating-system egress
+rules, and leak tests for proxy loss, DNS/DoH, WebRTC/STUN, HTTP/3/QUIC,
+WebTransport, WebSocket, extensions, updates, captive portal, localhost/LAN,
+and IPv4/IPv6 remain release gates.
 
 ## Blackout
 
@@ -77,8 +106,10 @@ independent evaluation.
   TLS session tickets, service workers, history, or extension processes.
 - Downloads crossing an isolation boundary require a clear warning and policy
   check.
-- Localhost, LAN, `file:`, and OS protocol access are denied in Tor, I2P, and
-  Blackout unless that mode explicitly defines a narrower safe operation.
+- Release target: localhost, LAN, `file:`, and OS protocol access are denied in
+  Tor, I2P, and Blackout unless a mode defines a narrower safe operation. Current
+  I2P browser prefs proxy localhost/LAN HTTP and block external handlers by
+  default; immutable engine and OS enforcement remain pending.
 
 ## Threat model
 

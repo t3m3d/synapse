@@ -36,7 +36,7 @@ func privacyPolicyValue(policy, key) {
         emit "direct"
     }
     if key == "persistent" {
-        if mode == "shield" { emit "1" }
+        if mode == "shield" || mode == "i2p" { emit "1" }
         emit "0"
     }
     if key == "anonymity" {
@@ -51,20 +51,30 @@ func privacyPolicyValue(policy, key) {
         emit "deny"
     }
     if key == "partitionCookies" || key == "partitionStorage" ||
-       key == "partitionCache" || key == "httpsOnly" {
+       key == "partitionCache" {
+        emit "1"
+    }
+    if key == "httpsOnly" {
+        if mode == "i2p" { emit "0" }
         emit "1"
     }
     if key == "trackingProtection" { emit "strict" }
     if key == "extensionAccess" {
         if mode == "shield" { emit "prompt" }
+        if mode == "i2p" { emit "install-disabled" }
         emit "deny"
     }
-    if key == "localNetwork" || key == "externalProtocols" {
+    if key == "localNetwork" {
         if mode == "tor" || mode == "i2p" || mode == "blackout" { emit "deny" }
         emit "prompt"
     }
+    if key == "externalProtocols" {
+        if mode == "i2p" { emit "blocked-by-default" }
+        if mode == "tor" || mode == "blackout" { emit "deny" }
+        emit "prompt"
+    }
     if key == "clearnet" {
-        if mode == "i2p" { emit "deny" }
+        if mode == "i2p" { emit "i2p-outproxy-only" }
         emit "allow"
     }
     if key == "clipboard" {
@@ -81,7 +91,7 @@ func privacyPolicyValue(policy, key) {
     }
     if key == "printing" || key == "history" || key == "passwordStorage" ||
        key == "formAutofill" || key == "webrtc" {
-        if mode == "blackout" { emit "deny" }
+        if mode == "blackout" || (mode == "i2p" && key == "webrtc") { emit "deny" }
         emit "allow"
     }
     emit ""
@@ -95,7 +105,7 @@ func privacySummary(mode) {
         emit "Tor route | ephemeral isolated state | no direct fallback"
     }
     if mode == "i2p" {
-        emit "I2P route | isolated state | clearnet blocked"
+        emit "I2P+ proxy route | dedicated profile | DIRECT fallback prefs disabled"
     }
     if mode == "private" {
         emit "Direct route | ephemeral partitioned state | no anonymity claim"

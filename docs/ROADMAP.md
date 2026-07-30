@@ -44,6 +44,13 @@ not a public release.
   Second account Gecko profiles.
 - [x] Store Objective-K identity profiles in durable per-user application data
   and preserve earlier build-tree profiles during one-time migration.
+- [x] Separate Windows Gecko profiles by both privacy mode and browser identity.
+- [ ] Fix Krypton's Windows quoted-argv parsing before Program Files packaging.
+- [ ] Replace Objective-K's ANSI browser launch with `ShellExecuteExW` after
+  Krypton's native wide-process path is stable.
+- [ ] Replace the bounded PowerShell loopback probe with native Krypton Winsock
+  after the Windows host's direct Winsock import path is repaired and covered by
+  integration tests.
 - [ ] Register or migrate Objective-K identities into Gecko's selectable-profile
   service without hiding previously created profiles.
 - [ ] Connect Objective-K privacy contexts and diagnostics to engine enforcement.
@@ -55,10 +62,17 @@ not a public release.
 
 - [ ] Apply hardened Gecko defaults with automated assertions.
 - [ ] Implement immutable Shield and Private profile contexts.
-- [ ] Integrate Tor and I2P with fail-closed routing tests.
+- [x] Add the initial Windows I2P+ profile: dedicated durable mode-and-identity
+  state, `127.0.0.1:4444` TCP gate, explicit HTTP/HTTPS proxying, no-DIRECT
+  preferences, and native DNS/WebRTC/HTTP3 disabled.
+- [ ] Authenticate and attest I2P+ listener ownership, router bootstrap, and
+  router outproxy policy.
+- [ ] Integrate Tor with fail-closed routing tests.
+- [ ] Add build-level immutable proxy controls and per-process OS egress rules.
 - [ ] Implement Blackout egress controls and ephemeral lifecycle.
 - [ ] Partition state and extension processes across context boundaries.
-- [ ] Add fingerprinting, DNS, WebRTC, proxy-failure, and crash-recovery tests.
+- [ ] Add fingerprinting, DNS/DoH, WebRTC/STUN, QUIC/WebTransport, proxy-loss,
+  localhost/LAN, IPv4/IPv6, outproxy, extension, and crash-recovery leak tests.
 - [ ] Commission an independent security assessment before certification claims.
 
 ## M4 — Beautiful Synapse chrome

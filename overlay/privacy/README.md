@@ -22,6 +22,23 @@ locks the no-telemetry, no-studies, no-sponsored-content floor. Blackout's
 alternate policy blocks installation and uninstalls non-system profile add-ons;
 the runtime must additionally attest that no non-builtin add-on is active.
 
+## Windows I2P+ profile
+
+The Objective-K controller generates a `user.js` for each dedicated
+`%LOCALAPPDATA%\Synapse\Profiles\synapse-i2p-<identity>` profile rather than
+changing the shared `synapse.js`. It requires a TCP listener on
+`127.0.0.1:4444`, assigns both HTTP and HTTPS to that I2P+ proxy, and disables
+ordinary direct failover and bypass, native DNS, WebRTC, HTTP/3, speculative
+connections, and network probes. The extension-install preference is disabled,
+but existing or sideloaded extensions are not yet immutably blocked or attested;
+a proxy extension can replace the route.
+
+This is a fail-closed browser preference layer, not a complete egress boundary.
+The TCP probe does not authenticate I2P+, prove router bootstrap, or constrain
+the router's clearnet outproxy. `user.js` and runtime preferences are mutable.
+Build-level immutable controls, operating-system process egress, router outproxy
+policy, and the comprehensive leak suite remain required before a release claim.
+
 ## Blackout launch contract
 
 `blackout/user.js` and `blackout/policies.template.json` are templates, not a

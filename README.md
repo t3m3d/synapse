@@ -125,6 +125,28 @@ Gecko's crash dialog after a parent-process crash, but their reserved `.invalid`
 endpoint prevents successful upload. Release packaging still needs a Synapse
 launcher or build-level no-report enforcement.
 
+### Windows I2P+ development mode
+
+Start I2P+ before opening I2P mode in Synapse Control. The controller requires
+a TCP listener at `127.0.0.1:4444`, then sends both HTTP and HTTPS through that
+local I2P+ proxy. Every I2P identity uses a durable profile such as
+`%LOCALAPPDATA%\Synapse\Profiles\synapse-i2p-personal`, separate from the same
+identity in Shield. Its generated `user.js` disables direct proxy fallback,
+proxy bypass, WebRTC, native DNS, HTTP/3, prefetch, and network probes. I2P sites
+commonly need an explicit `http://` address because many do not offer HTTPS.
+Run `dist\synapse-tool.exe i2p-check` to test the local listener.
+
+This is a development integration, not an `.i2p`-only guarantee. I2P+ may send
+clearnet destinations through a router outproxy, and a successful TCP check
+proves only that something is listening on the expected port. Profile
+preferences are mutable browser controls, not immutable engine or operating
+system policy. The extension-install preference is disabled inside I2P profiles
+because a proxy-capable extension can replace routing, but existing or sideloaded
+extensions are not yet attested; Firefox WebExtensions remain supported in
+Shield. OS egress enforcement and the full proxy-failure,
+DNS, WebRTC, QUIC, localhost, LAN, extension, and outproxy leak suite remain
+release gates.
+
 See [Architecture](docs/ARCHITECTURE.md), [Privacy](docs/PRIVACY.md),
 [Extensions](docs/EXTENSIONS.md), and the [Roadmap](docs/ROADMAP.md).
 
