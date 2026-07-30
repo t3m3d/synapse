@@ -131,9 +131,11 @@ Start I2P+ before opening I2P mode in Synapse Control. The controller requires
 a TCP listener at `127.0.0.1:4444`, then sends both HTTP and HTTPS through that
 local I2P+ proxy. Every I2P identity uses a durable profile such as
 `%LOCALAPPDATA%\Synapse\Profiles\synapse-i2p-personal`, separate from the same
-identity in Shield. Its generated `user.js` disables direct proxy fallback,
-proxy bypass, WebRTC, native DNS, HTTP/3, prefetch, and network probes. I2P sites
-commonly need an explicit `http://` address because many do not offer HTTPS.
+identity in Shield. Its generated `user.js` disables ordinary direct proxy
+fallback, WebRTC, native DNS, HTTP/3, prefetch, and network probes. The sole
+intentional proxy exception is numeric loopback `127.0.0.1`, allowing
+`C:\Program Files\i2p\docs\startconsole.html` to reach the router console at
+`http://127.0.0.1:7657`. I2P sites commonly need an explicit `http://` address.
 Run `dist\synapse-tool.exe i2p-check` to test the local listener.
 
 This is a development integration, not an `.i2p`-only guarantee. I2P+ may send

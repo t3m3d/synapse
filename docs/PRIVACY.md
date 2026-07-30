@@ -64,12 +64,14 @@ profile. That check neither authenticates the listener nor proves the router has
 bootstrapped.
 
 Both HTTP and HTTPS use the I2P+ HTTP proxy on port 4444; SOCKS is unused. The
-generated `user.js` disables direct proxy failover and bypass, native DNS, DoH,
+generated `user.js` disables ordinary direct proxy failover, native DNS, DoH,
 WebRTC, HTTP/3, speculative connections, prefetch, connectivity checks, and
-captive-portal checks. Most `.i2p` sites need an explicit `http://` URL. The
-installation preference is disabled because proxy-capable extensions can replace
-the route, but existing or sideloaded extensions are not yet immutably blocked or
-attested.
+captive-portal checks. `network.proxy.no_proxies_on` exempts only numeric
+loopback `127.0.0.1`, so the installed I2P+ launcher can reach the console at
+`http://127.0.0.1:7657`; localhost names and private LAN ranges remain proxied.
+Most `.i2p` sites need an explicit `http://` URL. The installation preference is
+disabled because proxy-capable extensions can replace the route, but existing or
+sideloaded extensions are not yet immutably blocked or attested.
 
 This mode hands browser traffic to I2P+ while startup prefs disable ordinary
 DIRECT fallback. It must not be described as `.i2p`-only: the router may send clearnet

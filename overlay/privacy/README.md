@@ -28,10 +28,13 @@ The Objective-K controller generates a `user.js` for each dedicated
 `%LOCALAPPDATA%\Synapse\Profiles\synapse-i2p-<identity>` profile rather than
 changing the shared `synapse.js`. It requires a TCP listener on
 `127.0.0.1:4444`, assigns both HTTP and HTTPS to that I2P+ proxy, and disables
-ordinary direct failover and bypass, native DNS, WebRTC, HTTP/3, speculative
-connections, and network probes. The extension-install preference is disabled,
-but existing or sideloaded extensions are not yet immutably blocked or attested;
-a proxy extension can replace the route.
+ordinary direct failover, native DNS, WebRTC, HTTP/3, speculative connections,
+and network probes. The sole proxy exception is numeric loopback `127.0.0.1`,
+which lets `C:\Program Files\i2p\docs\startconsole.html` reach the local router
+console without exempting localhost names or private LAN ranges. The
+extension-install preference is disabled, but existing or sideloaded extensions
+are not yet immutably blocked or attested; a proxy extension can replace the
+route.
 
 This is a fail-closed browser preference layer, not a complete egress boundary.
 The TCP probe does not authenticate I2P+, prove router bootstrap, or constrain

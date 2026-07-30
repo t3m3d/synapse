@@ -1,6 +1,7 @@
 #!/usr/bin/env kr
 // Synapse source/build controller. Product build orchestration stays KryptScript.
 // Overlay copy is additive/update-only; no upstream files are deleted.
+import "k:proc_ex"
 import "../src/core/i2p.k"
 import "../src/platform/windows/i2p_probe.k"
 import "../src/platform/windows/browser_spawn.k"
@@ -421,8 +422,28 @@ func toolI2pProfileRoot() {
     emit joinPath(joinPath(local, "Synapse"), "Profiles")
 }
 
+func toolImageDirectory() {
+    let image = processImagePath(GetCurrentProcessId())
+    if len(image) == 0 { emit "" }
+    let index = len(image) - 1
+    while index >= 0 {
+        if image[index] == "\\" || image[index] == "/" {
+            emit substring(image, 0, index)
+        }
+        index -= 1
+    }
+    emit ""
+}
+
 func toolI2pBrowser() {
-    emit joinPath(joinPath(joinPath(joinPath(buildStateRoot(), "obj-synapse"), "dist"), "bin"), "firefox.exe")
+    let imageDirectory = toolImageDirectory()
+    if len(imageDirectory) > 0 {
+        let installed = joinPath(imageDirectory, "firefox.exe")
+        if exists(installed) { emit installed }
+    }
+    let workspace = workspaceRoot()
+    if len(workspace) == 0 { emit "" }
+    emit joinPath(joinPath(joinPath(joinPath(joinPath(workspace, ".synapse-build"), "obj-synapse"), "dist"), "bin"), "firefox.exe")
 }
 
 func toolEnforceI2pPrefs(profile) {
@@ -449,11 +470,6 @@ func openI2pProfile(requestedIdentity) {
     }
     if i2pProxyReady() != "1" {
         print("I2P+ is unavailable at " + i2pProxyHost() + ":" + i2pProxyPort())
-        emit "0"
-    }
-    let workspace = workspaceRoot()
-    if len(workspace) == 0 {
-        print("Synapse workspace was not found")
         emit "0"
     }
     let browser = toolI2pBrowser()
@@ -485,6 +501,36 @@ func openI2pProfile(requestedIdentity) {
     print("Profile: " + profile)
     emit "1"
 }
+
+func stageRuntimeHelper(name, bin) {
+    let source = joinPath(joinPath(workspaceRoot(), "dist"), name)
+    let target = joinPath(bin, name)
+    if !exists(source) {
+        print("Package helper is missing: " + source)
+        emit "0"
+    }
+    let command = "copy /Y " + quote(source) + " " + quote(target) + " >nul"
+    command = command + " & if errorlevel 1 (echo no) else (echo yes)"
+    if !contains(exec(command), "yes") || !exists(target) {
+        print("Could not stage package helper: " + name)
+        emit "0"
+    }
+    emit "1"
+}
+
+func stageRuntimeHelpers() {
+    let bin = joinPath(joinPath(joinPath(buildStateRoot(), "obj-synapse"), "dist"), "bin")
+    if !exists(joinPath(bin, "firefox.exe")) {
+        print("Synapse browser output is missing: " + bin)
+        emit "0"
+    }
+    if stageRuntimeHelper("synapse-tool.exe", bin) != "1" { emit "0" }
+    if stageRuntimeHelper("synapse-control.exe", bin) != "1" { emit "0" }
+    if stageRuntimeHelper("krypton_rt.dll", bin) != "1" { emit "0" }
+    print("Synapse runtime helpers staged in: " + bin)
+    emit "1"
+}
+
 func packageStoreDev() {
     if validateRoots("0") != "1" { emit "0" }
     if runMach("build", "store-build") != "1" { emit "0" }
@@ -496,6 +542,7 @@ func packageStoreDev() {
         print("Fresh browser output is missing after build: " + bin)
         emit "0"
     }
+    if stageRuntimeHelpers() != "1" { emit "0" }
 
     let makeappx = findMakeAppx()
     if len(makeappx) == 0 || !exists(makeappx) {
@@ -588,6 +635,7 @@ just run {
         exit(1)
     }
     if command == "package" {
+        if stageRuntimeHelpers() != "1" { exit(1) }
         if runMach("package", "package") == "1" { exit(0) }
         exit(1)
     }

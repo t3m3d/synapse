@@ -72,7 +72,6 @@ func i2pUserPrefs() {
     prefs = prefs + i2pPref("dom.security.https_only_mode_pbm", "false")
     prefs = prefs + i2pPref("keyword.enabled", "false")
     prefs = prefs + i2pPref("browser.fixup.domainsuffixwhitelist.i2p", "true")
-    prefs = prefs + i2pPref("browser.fixup.alternate.enabled", "false")
     prefs = prefs + i2pPref("browser.search.suggest.enabled", "false")
     prefs = prefs + i2pPref("browser.urlbar.suggest.searches", "false")
     prefs = prefs + i2pPref("browser.startup.homepage", "\"about:blank\"")

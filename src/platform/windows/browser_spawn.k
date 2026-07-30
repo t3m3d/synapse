@@ -47,6 +47,43 @@ func windowsStartDetached(executable, arguments, workingDirectory) {
     emit "0"
 }
 
+// Run a bounded command-line helper without cmd.exe parsing dynamic values.
+// The returned text includes stdout/stderr followed by a private exit marker.
+func windowsRunCapture(executable, arguments, workingDirectory) {
+    if len(executable) == 0 || len(workingDirectory) == 0 { emit "" }
+
+    let executable64 = b64Encode(executable)
+    let arguments64 = b64Encode(arguments)
+    let workingDirectory64 = b64Encode(workingDirectory)
+
+    let script = "$utf8=[Text.Encoding]::UTF8;"
+    script = script + "$exe=$utf8.GetString([Convert]::FromBase64String('" + executable64 + "'));"
+    script = script + "$arguments=$utf8.GetString([Convert]::FromBase64String('" + arguments64 + "'));"
+    script = script + "$cwd=$utf8.GetString([Convert]::FromBase64String('" + workingDirectory64 + "'));"
+    script = script + "$psi=[Diagnostics.ProcessStartInfo]::new();"
+    script = script + "$psi.FileName=$exe;"
+    script = script + "$psi.Arguments=$arguments;"
+    script = script + "$psi.WorkingDirectory=$cwd;"
+    script = script + "$psi.UseShellExecute=$false;"
+    script = script + "$psi.CreateNoWindow=$true;"
+    script = script + "$psi.RedirectStandardOutput=$true;"
+    script = script + "$psi.RedirectStandardError=$true;"
+    script = script + "$process=[Diagnostics.Process]::Start($psi);"
+    script = script + "$stdout=$process.StandardOutput.ReadToEnd();"
+    script = script + "$stderr=$process.StandardError.ReadToEnd();"
+    script = script + "$process.WaitForExit();"
+    script = script + "[Console]::Out.Write($stdout+$stderr+'__SYNAPSE_PROCESS_EXIT__'+$process.ExitCode)"
+
+    let powershell = "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe"
+    let command = powershell + " -NoLogo -NoProfile -NonInteractive -Command "
+    command = command + _synapseSpawnQuote(script)
+    emit exec(command)
+}
+
+func windowsRunSucceeded(output) {
+    emit contains(output, "__SYNAPSE_PROCESS_EXIT__0")
+}
+
 func startSynapseBrowser(browser, profile, mode) {
     let arguments = "-no-remote -profile " + _synapseSpawnQuote(profile)
     if mode == "i2p" { arguments = arguments + " about:blank" }
