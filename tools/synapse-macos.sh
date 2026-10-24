@@ -16,6 +16,22 @@ need_command() {
   command -v "$1" >/dev/null 2>&1 || fail "required command is missing: $1"
 }
 
+# macOS ships a Kerberos credential-cache tool named kcc in /usr/bin, which can
+# shadow the Krypton compiler when /usr/local/bin is later in PATH. Resolve the
+# compiler by its version banner instead of by name alone.
+find_krypton_kcc() {
+  local candidate
+  for candidate in "${SYNAPSE_KCC:-}" "$(command -v kcc 2>/dev/null)" \
+    /usr/local/bin/kcc /opt/homebrew/bin/kcc; do
+    [[ -n "$candidate" && -x "$candidate" ]] || continue
+    if "$candidate" --version 2>/dev/null | grep -q '^kcc version '; then
+      printf '%s\n' "$candidate"
+      return 0
+    fi
+  done
+  return 1
+}
+
 check_roots() {
   [[ -f "$workspace/tools/synapse.ks" ]] || fail "workspace is not a Synapse repository: $workspace"
   [[ -f "$firefox_root/mach" ]] || fail "Firefox source is missing: $firefox_root"
@@ -37,10 +53,12 @@ doctor() {
     fi
   done
 
-  if command -v kcc >/dev/null 2>&1; then
-    printf 'Krypton compiler: ok (%s)\n' "$(command -v kcc)"
+  local kcc_path
+  if kcc_path="$(find_krypton_kcc)"; then
+    printf 'Krypton compiler: ok (%s, %s)\n' "$kcc_path" \
+      "$("$kcc_path" --version 2>/dev/null | head -n 1)"
   else
-    printf 'Krypton compiler: missing\n'
+    printf 'Krypton compiler: missing (install Krypton 2.4+ or set SYNAPSE_KCC)\n'
     failures=$((failures + 1))
   fi
 
@@ -102,8 +120,10 @@ run_mach() {
   apply_overlay
   mkdir -p "$build_root" "$mozbuild_root"
   local log="$build_root/mach-$label.log"
-  printf 'Running: mach %s\nLog: %s\n' "$*" "$log"
-  if MOZBUILD_STATE_PATH="$mozbuild_root" "$firefox_root/mach" "$@" >"$log" 2>&1; then
+  printf 'Running: mach %s\nSource root: %s\nLog: %s\n' "$*" "$firefox_root" "$log"
+  # mach's Python bootstrap re-executes itself as a relative `mach` path, so it
+  # must be started as ./mach from the Firefox source root.
+  if ( cd "$firefox_root" && MOZBUILD_STATE_PATH="$mozbuild_root" ./mach "$@" >"$log" 2>&1 ); then
     printf 'Mach %s: complete\n' "$label"
   else
     tail -n 80 "$log" >&2 || true
@@ -112,9 +132,12 @@ run_mach() {
 }
 
 run_core_tests() {
-  need_command kcc
+  local kcc_path
+  kcc_path="$(find_krypton_kcc)" ||
+    fail "Krypton compiler is missing (install Krypton 2.4+ or set SYNAPSE_KCC)"
   mkdir -p "$build_root"
-  kcc "$workspace/tests/run.ks" -o "$build_root/synapse-tests"
+  printf 'Krypton compiler: %s\n' "$kcc_path"
+  "$kcc_path" "$workspace/tests/run.ks" -o "$build_root/synapse-tests"
   if ! "$build_root/synapse-tests"; then
     fail "Krypton core contracts failed"
   fi
@@ -134,6 +157,8 @@ Synapse macOS controller
 
 Optional environment:
   SYNAPSE_FIREFOX_ROOT  Firefox source checkout (default: ~/mozilla-source/firefox)
+  SYNAPSE_KCC           Krypton compiler binary (default: first kcc reporting a
+                        Krypton version; /usr/bin/kcc is macOS Kerberos)
 EOF
 }
 
