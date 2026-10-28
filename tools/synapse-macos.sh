@@ -164,6 +164,59 @@ i2p_check() {
   fi
 }
 
+i2p_router_script() {
+  local router_dir
+  if [[ -n "${SYNAPSE_I2P_ROUTER_DIR:-}" ]]; then
+    router_dir="$SYNAPSE_I2P_ROUTER_DIR"
+    [[ -f "$router_dir/i2prouter" ]] || fail "I2P+ router script not found in SYNAPSE_I2P_ROUTER_DIR: $router_dir"
+    printf '%s\n' "$router_dir/i2prouter"
+    return 0
+  fi
+
+  for router_dir in /Applications/i2p "$HOME/i2p"; do
+    if [[ -f "$router_dir/i2prouter" ]]; then
+      printf '%s\n' "$router_dir/i2prouter"
+      return 0
+    fi
+  done
+  fail "I2P+ installation not found; set SYNAPSE_I2P_ROUTER_DIR to its install directory"
+}
+
+i2p_router_status() {
+  local router_script router_dir status_rc
+  router_script="$(i2p_router_script)"
+  router_dir="$(dirname "$router_script")"
+  printf 'I2P+ router command status:\n'
+  (cd "$router_dir" && sh ./i2prouter status) || status_rc=$?
+  status_rc="${status_rc:-0}"
+  if i2p_proxy_ready; then
+    printf 'Proxy endpoint: listening at 127.0.0.1:4444 (TCP only; bootstrap not verified)\n'
+  else
+    printf 'Proxy endpoint: not listening at 127.0.0.1:4444\n'
+  fi
+  return "$status_rc"
+}
+
+i2p_router_start() {
+  local router_script router_dir
+  router_script="$(i2p_router_script)"
+  router_dir="$(dirname "$router_script")"
+  if i2p_proxy_ready; then
+    printf 'I2P+ proxy is already listening at 127.0.0.1:4444\n'
+    return 0
+  fi
+  (cd "$router_dir" && sh ./i2prouter start) || fail "I2P+ router start command failed"
+  printf 'I2P+ start requested. Synapse I2P browsing remains blocked until the proxy listens at 127.0.0.1:4444.\n'
+}
+
+i2p_router_stop() {
+  local router_script router_dir
+  router_script="$(i2p_router_script)"
+  router_dir="$(dirname "$router_script")"
+  (cd "$router_dir" && sh ./i2prouter graceful) || fail "I2P+ graceful shutdown command failed"
+  printf 'I2P+ graceful shutdown requested.\n'
+}
+
 write_i2p_prefs_to() {
   local target="$1"
   cat >"$target" <<'EOF'
@@ -280,6 +333,9 @@ usage() {
 Synapse macOS controller
   tools/synapse-macos.sh doctor
   tools/synapse-macos.sh i2p-check
+  tools/synapse-macos.sh i2p-router-status
+  tools/synapse-macos.sh i2p-router-start
+  tools/synapse-macos.sh i2p-router-stop
   tools/synapse-macos.sh i2p-open [personal|work|school|creator|second-account] [home|subscriptions]
   tools/synapse-macos.sh apply
   tools/synapse-macos.sh build
@@ -291,6 +347,7 @@ Synapse macOS controller
 
 Optional environment:
   SYNAPSE_FIREFOX_ROOT  Firefox source checkout (default: ~/mozilla-source/firefox)
+  SYNAPSE_I2P_ROUTER_DIR I2P+ install directory (default: /Applications/i2p or ~/i2p)
   SYNAPSE_KCC           Krypton compiler binary (default: first kcc reporting a
                         Krypton version; /usr/bin/kcc is macOS Kerberos)
 EOF
@@ -304,6 +361,9 @@ case "$command_name" in
   faster) run_mach faster build faster ;;
   run) run_mach run run --no-remote ;;
   i2p-check) i2p_check ;;
+  i2p-router-status) i2p_router_status ;;
+  i2p-router-start) i2p_router_start ;;
+  i2p-router-stop) i2p_router_stop ;;
   i2p-open) i2p_open "${2:-personal}" "${3:-home}" ;;
   package) run_mach package package ;;
   test-extension)

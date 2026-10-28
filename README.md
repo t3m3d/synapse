@@ -169,6 +169,9 @@ tools/synapse-macos.sh apply
 tools/synapse-macos.sh build
 tools/synapse-macos.sh run
 # With I2P+ installed and bootstrapped:
+tools/synapse-macos.sh i2p-router-status
+tools/synapse-macos.sh i2p-router-start
+tools/synapse-macos.sh i2p-router-stop
 tools/synapse-macos.sh i2p-check
 tools/synapse-macos.sh i2p-open personal
 tools/synapse-macos.sh i2p-open personal subscriptions
@@ -176,9 +179,14 @@ tools/synapse-macos.sh i2p-open personal subscriptions
 
 The macOS controller uses the same tracked overlay and privacy patch as the
 Windows controller. It keeps build state under `.synapse-build` and does not
-delete files from the upstream Firefox checkout. The macOS I2P+ command requires
-an already-running local HTTP proxy at `127.0.0.1:4444`; it creates a persistent,
-mode-and-identity-isolated profile under
+delete files from the upstream Firefox checkout. The I2P+ router management
+commands use the installed `i2prouter` script (default install locations
+`/Applications/i2p` and `~/i2p`; set `SYNAPSE_I2P_ROUTER_DIR` for another path).
+Start and graceful stop are explicit user actions; Synapse does not install a
+launchd service or configure login autostart. Router status and proxy readiness
+are reported separately: a TCP listener does not prove bootstrap or router
+identity. The macOS browser launch still requires the proxy at `127.0.0.1:4444`;
+it creates a persistent, mode-and-identity-isolated profile under
 `~/Library/Application Support/Synapse/Profiles/` and opens the local Router
 Console. It never adds the optional `http://skank.i2p/hosts.txt` address-book
 subscription automatically. This is a local development path; the TCP probe

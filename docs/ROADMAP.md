@@ -69,6 +69,9 @@ not a public release.
   local proxy readiness gate, hardened profile preferences, and Router Console
   start page. Windows integration testing remains deferred until a Windows
   machine is available.
+- [x] Add explicit macOS I2P+ user-router status/start/graceful-stop commands;
+  automatic login startup and privileged launchd service installation remain
+  off. A browser-native Settings page and router installer are still pending.
 - [ ] Authenticate and attest I2P+ listener ownership, router bootstrap, and
   router outproxy policy.
 - [ ] Integrate Tor with fail-closed routing tests.
