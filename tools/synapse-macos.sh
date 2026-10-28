@@ -143,6 +143,20 @@ run_core_tests() {
   fi
 }
 
+build_i2p_settings() {
+  local kcc_path
+  kcc_path="$(find_krypton_kcc)" ||
+    fail "Krypton compiler is missing (install Krypton 2.4+ or set SYNAPSE_KCC)"
+  mkdir -p "$build_root"
+  "$kcc_path" "$workspace/src/control/i2p_settings.ks" -o "$build_root/synapse-i2p-settings"
+  printf 'Built I2P settings app: %s\n' "$build_root/synapse-i2p-settings"
+}
+
+i2p_settings() {
+  build_i2p_settings
+  SYNAPSE_WORKSPACE_ROOT="$workspace" "$build_root/synapse-i2p-settings"
+}
+
 i2p_identity() {
   case "${1:-personal}" in
     personal|work|school|creator|second-account) printf '%s\n' "${1:-personal}" ;;
@@ -162,6 +176,32 @@ i2p_check() {
     printf 'I2P+ readiness: unavailable; start I2P+ and wait for its HTTP proxy\n' >&2
     return 1
   fi
+}
+
+i2p_setup_check() {
+  local router_script
+  if command -v java >/dev/null 2>&1 && java -version >/dev/null 2>&1; then
+    printf 'Java runtime: available\n'
+    java -version 2>&1 | head -n 1
+  else
+    printf 'Java runtime: missing (I2P+ universal installer requires Java 8 or later)\n'
+  fi
+  if router_script="$(i2p_router_script 2>/dev/null)"; then
+    printf 'I2P+ router script: %s\n' "$router_script"
+  else
+    printf 'I2P+ router script: not found in /Applications/i2p or ~/i2p\n'
+    printf 'For a custom install path, set SYNAPSE_I2P_ROUTER_DIR.\n'
+  fi
+  if i2p_proxy_ready; then
+    printf 'I2P+ HTTP proxy: listening at 127.0.0.1:4444 (TCP only; bootstrap not verified)\n'
+  else
+    printf 'I2P+ HTTP proxy: not listening at 127.0.0.1:4444\n'
+  fi
+}
+
+i2p_install_guide() {
+  open "https://i2pplus.github.io/download.html"
+  printf 'Opened the official I2P+ downloads page. Install Java 8+ first if needed.\n'
 }
 
 i2p_router_script() {
@@ -332,7 +372,10 @@ usage() {
   cat <<'EOF'
 Synapse macOS controller
   tools/synapse-macos.sh doctor
+  tools/synapse-macos.sh i2p-settings
   tools/synapse-macos.sh i2p-check
+  tools/synapse-macos.sh i2p-setup-check
+  tools/synapse-macos.sh i2p-install-guide
   tools/synapse-macos.sh i2p-router-status
   tools/synapse-macos.sh i2p-router-start
   tools/synapse-macos.sh i2p-router-stop
@@ -356,11 +399,14 @@ EOF
 command_name="${1:-}"
 case "$command_name" in
   doctor) doctor ;;
+  i2p-settings) i2p_settings ;;
   apply) apply_overlay ;;
   build) run_mach build build ;;
   faster) run_mach faster build faster ;;
   run) run_mach run run --no-remote ;;
   i2p-check) i2p_check ;;
+  i2p-setup-check) i2p_setup_check ;;
+  i2p-install-guide) i2p_install_guide ;;
   i2p-router-status) i2p_router_status ;;
   i2p-router-start) i2p_router_start ;;
   i2p-router-stop) i2p_router_stop ;;

@@ -169,6 +169,9 @@ tools/synapse-macos.sh apply
 tools/synapse-macos.sh build
 tools/synapse-macos.sh run
 # With I2P+ installed and bootstrapped:
+tools/synapse-macos.sh i2p-settings
+tools/synapse-macos.sh i2p-setup-check
+tools/synapse-macos.sh i2p-install-guide
 tools/synapse-macos.sh i2p-router-status
 tools/synapse-macos.sh i2p-router-start
 tools/synapse-macos.sh i2p-router-stop
@@ -179,8 +182,17 @@ tools/synapse-macos.sh i2p-open personal subscriptions
 
 The macOS controller uses the same tracked overlay and privacy patch as the
 Windows controller. It keeps build state under `.synapse-build` and does not
-delete files from the upstream Firefox checkout. The I2P+ router management
-commands use the installed `i2prouter` script (default install locations
+delete files from the upstream Firefox checkout. `i2p-settings` builds and opens
+a standalone Synapse I2P Network settings window with setup diagnostics,
+official download link, router status, explicit start/graceful-stop, identity
+selection, browser launch, and SusiDNS actions. Its router-action bridge uses
+Krypton's current synchronous `exec()` API with a fixed allowlist of actions, so
+the window can pause while a router command runs; a native nonblocking
+argv-based process API is not yet available in the current Krypton framework.
+It is not yet embedded in Firefox `about:preferences`. `i2p-setup-check` reports
+Java runtime, installation script, and proxy-listener status separately;
+`i2p-install-guide` opens the [official I2P+ download page](https://i2pplus.github.io/download.html).
+The I2P+ router management commands use the installed `i2prouter` script (default install locations
 `/Applications/i2p` and `~/i2p`; set `SYNAPSE_I2P_ROUTER_DIR` for another path).
 Start and graceful stop are explicit user actions; Synapse does not install a
 launchd service or configure login autostart. Router status and proxy readiness
@@ -192,6 +204,31 @@ Console. It never adds the optional `http://skank.i2p/hosts.txt` address-book
 subscription automatically. This is a local development path; the TCP probe
 confirms only that a listener exists, not that the router has bootstrapped or
 that traffic is protected by operating-system egress controls.
+
+### Durable agent and sandbox workspace (Archil)
+
+CI runners and sandboxed coding agents discard their file system when a run
+ends. `tools/archil_workspace.py` keeps that work on an
+[Archil](https://docs.archil.com/sdks/python) disk instead, so sources, logs,
+and small build outputs written by one agent or sandbox run are still there for
+the next one, from any machine:
+
+```bash
+python3 -m venv .venv
+.venv/bin/pip install archil
+export ARCHIL_API_KEY=key-...        # account API key, not a disk token
+.venv/bin/python tools/archil_workspace.py status
+.venv/bin/python tools/archil_workspace.py run -- sh -c 'date > last-run'
+.venv/bin/python tools/archil_workspace.py run -- cat last-run
+```
+
+The workspace disk is found by name (`synapse-build-workspace` by default; set
+`SYNAPSE_ARCHIL_DISK` for another) and created on first use. `.env.example`
+declares the variables; `ARCHIL_API_KEY` is read from the environment and never
+written to the repository. Commands run in an Archil microVM with the disk as
+the working directory, which suits short workspace tasks and file inspection
+rather than a full Gecko build: the SDK's default request timeout applies and
+the service caps a single command at five minutes.
 
 ## Licensing
 

@@ -71,7 +71,11 @@ not a public release.
   machine is available.
 - [x] Add explicit macOS I2P+ user-router status/start/graceful-stop commands;
   automatic login startup and privileged launchd service installation remain
-  off. A browser-native Settings page and router installer are still pending.
+  off.
+- [x] Add a standalone macOS I2P Network settings window for setup diagnostics,
+  official download guidance, router control, profile identity selection, and
+  isolated browser launch. Embedding it in Firefox `about:preferences` and a
+  managed router installer remain pending.
 - [ ] Authenticate and attest I2P+ listener ownership, router bootstrap, and
   router outproxy policy.
 - [ ] Integrate Tor with fail-closed routing tests.
