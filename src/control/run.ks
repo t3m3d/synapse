@@ -6,6 +6,7 @@ import "k:proc_ex"
 import "head:windows"
 import "../core/privacy.k"
 import "../core/i2p.k"
+import "../platform/windows/i2p_probe.k"
 
 func quote(value) {
     emit fromCharCode(34) + value + fromCharCode(34)
@@ -233,6 +234,11 @@ func onLaunch(self, cmd, sender) {
         emit done()
     }
 
+    if mode == "i2p" && i2pProxyReady() != "1" {
+        doText(status, "Launch blocked: start I2P+ and wait for its HTTP proxy at 127.0.0.1:4444")
+        emit done()
+    }
+
     let browser = browserPath(workspace)
     let profile = profilePath(mode, identity)
     let legacyProfile = legacyProfilePath(workspace, identity)
@@ -273,7 +279,7 @@ func onLaunch(self, cmd, sender) {
 
     let launchCommand = "set MOZ_CRASHREPORTER_NO_REPORT=1&& start " + quote("") + " " + quote(browser)
     launchCommand = launchCommand + " -no-remote -profile " + quote(profile)
-    if mode == "i2p" { launchCommand = launchCommand + " about:blank" }
+    if mode == "i2p" { launchCommand = launchCommand + " " + quote(i2pRouterHomeUrl()) }
     launchCommand = launchCommand + " & if errorlevel 1 (echo no) else (echo yes)"
     if !contains(exec(launchCommand), "yes") {
         doText(status, "Launch failed: Windows could not start Synapse")

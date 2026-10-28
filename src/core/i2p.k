@@ -5,6 +5,16 @@ module synapse_i2p
 // contract tests cannot drift apart.
 func i2pProxyHost() { emit "127.0.0.1" }
 func i2pProxyPort() { emit "4444" }
+func i2pRouterHomeUrl() { emit "http://127.0.0.1:7657" }
+func i2pSubscriptionsUrl() { emit "http://127.0.0.1:7657/susidns/subscriptions" }
+func i2pPlusHostsUrl() { emit "http://skank.i2p/hosts.txt" }
+
+// Accept only known local console destinations; never pass caller-provided URLs
+// through to the browser process.
+func i2pStartUrl(destination) {
+    if destination == "subscriptions" { emit i2pSubscriptionsUrl() }
+    emit i2pRouterHomeUrl()
+}
 
 func i2pProfileFolder(identityFolder) {
     emit "synapse-i2p-" + identityFolder
@@ -74,7 +84,7 @@ func i2pUserPrefs() {
     prefs = prefs + i2pPref("browser.fixup.domainsuffixwhitelist.i2p", "true")
     prefs = prefs + i2pPref("browser.search.suggest.enabled", "false")
     prefs = prefs + i2pPref("browser.urlbar.suggest.searches", "false")
-    prefs = prefs + i2pPref("browser.startup.homepage", "\"about:blank\"")
+    prefs = prefs + i2pPref("browser.startup.homepage", "\"" + i2pRouterHomeUrl() + "\"")
     prefs = prefs + i2pPref("browser.newtabpage.enabled", "false")
 
     prefs = prefs + i2pPref("privacy.resistFingerprinting", "true")

@@ -55,13 +55,14 @@ When an enforced Tor, I2P, or Blackout route is unavailable, Synapse blocks
 launch or navigation instead of silently falling back to direct networking.
 The current I2P readiness gate proves only that the local proxy port accepts TCP.
 
-## Windows I2P+ development profile
+## I2P+ development profile
 
-Windows I2P mode creates a durable Gecko profile for each mode-and-identity pair,
-so I2P Personal never shares browser state with Shield Personal. The launcher
-requires a TCP connection to `127.0.0.1:4444` before it creates or opens the
-profile. That check neither authenticates the listener nor proves the router has
-bootstrapped.
+The Windows and macOS development launchers create a durable Gecko profile
+for each mode-and-identity pair, so I2P Personal never shares browser state with
+Shield Personal. Both require a TCP connection to `127.0.0.1:4444` before they
+create or open the profile. That check neither authenticates the listener nor
+proves the router has bootstrapped. On macOS, profile data is stored at
+`~/Library/Application Support/Synapse/Profiles/synapse-i2p-<identity>`.
 
 Both HTTP and HTTPS use the I2P+ HTTP proxy on port 4444; SOCKS is unused. The
 generated `user.js` disables ordinary direct proxy failover, native DNS, DoH,
@@ -69,9 +70,14 @@ WebRTC, HTTP/3, speculative connections, prefetch, connectivity checks, and
 captive-portal checks. `network.proxy.no_proxies_on` exempts only numeric
 loopback `127.0.0.1`, so the installed I2P+ launcher can reach the console at
 `http://127.0.0.1:7657`; localhost names and private LAN ranges remain proxied.
-Most `.i2p` sites need an explicit `http://` URL. The installation preference is
-disabled because proxy-capable extensions can replace the route, but existing or
-sideloaded extensions are not yet immutably blocked or attested.
+Most `.i2p` sites need an explicit `http://` URL. I2P mode starts at the local
+I2P+ Router Console (`http://127.0.0.1:7657`), which supplies its curated
+starter links after bootstrap. Synapse can open SusiDNS subscriptions at
+`http://127.0.0.1:7657/susidns/subscriptions`; the optional I2P+ feed
+(`http://skank.i2p/hosts.txt`) is not pre-added. Users should decide whether
+they trust that address-book operator before subscribing. The installation
+preference is disabled because proxy-capable extensions can replace the route,
+but existing or sideloaded extensions are not yet immutably blocked or attested.
 
 This mode hands browser traffic to I2P+ while startup prefs disable ordinary
 DIRECT fallback. It must not be described as `.i2p`-only: the router may send clearnet

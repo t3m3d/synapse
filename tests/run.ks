@@ -43,8 +43,18 @@ just run {
     print("Running I2P+ profile contracts...")
     expect(i2pProxyHost(), "127.0.0.1", "i2p proxy host")
     expect(i2pProxyPort(), "4444", "i2p proxy port")
+    expect(i2pRouterHomeUrl(), "http://127.0.0.1:7657", "i2p router home")
+    expect(i2pSubscriptionsUrl(), "http://127.0.0.1:7657/susidns/subscriptions", "i2p subscriptions")
+    expect(i2pPlusHostsUrl(), "http://skank.i2p/hosts.txt", "i2p plus address-book feed")
+    expect(i2pStartUrl("home"), i2pRouterHomeUrl(), "default i2p start page")
+    expect(i2pStartUrl("subscriptions"), i2pSubscriptionsUrl(), "known local subscriptions route")
+    expect(i2pStartUrl("https://attacker.invalid"), i2pRouterHomeUrl(), "unknown start route rejected")
     expect(i2pProfileFolder("personal"), "synapse-i2p-personal", "i2p profile folder")
     let i2pPrefs = i2pUserPrefs()
+    if !contains(i2pPrefs, i2pRouterHomeUrl()) {
+        printErr("FAIL I2P startup homepage must use the local router console")
+        exit(1)
+    }
     if !contains(i2pPrefs, "network.proxy.type\", 1") ||
        !contains(i2pPrefs, "network.proxy.http\", \"127.0.0.1\"") ||
        !contains(i2pPrefs, "network.proxy.http_port\", 4444") ||

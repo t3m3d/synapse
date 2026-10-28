@@ -65,6 +65,10 @@ not a public release.
 - [x] Add the initial Windows I2P+ profile: dedicated durable mode-and-identity
   state, `127.0.0.1:4444` TCP gate, explicit HTTP/HTTPS proxying, no-DIRECT
   preferences, and native DNS/WebRTC/HTTP3 disabled.
+- [x] Add a macOS I2P+ development launcher with a dedicated durable profile,
+  local proxy readiness gate, hardened profile preferences, and Router Console
+  start page. Windows integration testing remains deferred until a Windows
+  machine is available.
 - [ ] Authenticate and attest I2P+ listener ownership, router bootstrap, and
   router outproxy policy.
 - [ ] Integrate Tor with fail-closed routing tests.

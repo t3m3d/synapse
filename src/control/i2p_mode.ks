@@ -4,6 +4,7 @@
 
 import "k:okui"
 import "k:proc_ex"
+import "../core/i2p.k"
 import "../platform/windows/browser_spawn.k"
 
 func i2pModeDirectory(path) {
@@ -43,7 +44,7 @@ func onI2pModeOpen(self, cmd, sender) {
     let identity = i2pModeIdentity(choice(get(sender, "identity")))
     let status = get(sender, "status")
     let output = windowsRunCapture(
-        tool, "i2p-open " + identity, i2pModeDirectory(tool)
+        tool, "i2p-open " + identity + " home", i2pModeDirectory(tool)
     )
     if windowsRunSucceeded(output) == "1" && contains(output, "started through") {
         doText(status, "I2P " + identity + " opened through 127.0.0.1:4444")
@@ -53,14 +54,17 @@ func onI2pModeOpen(self, cmd, sender) {
     emit done()
 }
 
-func onI2pModeRouter(self, cmd, sender) {
+func onI2pModeAddressbook(self, cmd, sender) {
+    let tool = i2pModeTool()
+    let identity = i2pModeIdentity(choice(get(sender, "identity")))
     let status = get(sender, "status")
-    let launcher = "C:\\Program Files\\i2p\\docs\\startconsole.html"
-    let directory = i2pModeDirectory(launcher)
-    if windowsStartDetached(launcher, "", directory) == "1" {
-        doText(status, "I2P+ Router Console opened at 127.0.0.1:7657")
+    let output = windowsRunCapture(
+        tool, "i2p-open " + identity + " subscriptions", i2pModeDirectory(tool)
+    )
+    if windowsRunSucceeded(output) == "1" {
+        doText(status, "SusiDNS opened. Add the I2P+ feed only if you trust this address book.")
     } else {
-        doText(status, "Router launcher missing: " + launcher)
+        doText(status, "Could not open SusiDNS; make sure the I2P+ router is ready")
     }
     emit done()
 }
@@ -87,14 +91,16 @@ just run {
     doAddChoice(identity, "Second account")
     doChoose(identity, 0)
 
-    let open = button(win, "Open I2P Browser", area(26, 78, 180, 36))
-    let router = button(win, "I2P+ Router", area(220, 78, 160, 36))
-    let status = label(win, "Ready — numeric loopback bypass only", area(26, 34, 490, 24))
+    label(win, "Optional I2P+ address-book feed: " + i2pPlusHostsUrl(), area(26, 105, 510, 24))
+    label(win, "SusiDNS subscriptions: 127.0.0.1:7657/susidns/subscriptions", area(26, 82, 510, 24))
+    let open = button(win, "Open I2P Browser", area(26, 42, 180, 36))
+    let addressbook = button(win, "Address Book", area(220, 42, 160, 36))
+    let status = label(win, "Router home has curated starter links", area(26, 12, 510, 24))
 
     i2pModeBind(open, identity, status)
-    i2pModeBind(router, identity, status)
+    i2pModeBind(addressbook, identity, status)
     doClick(open, "synapse.i2p.open", funcptr(onI2pModeOpen))
-    doClick(router, "synapse.i2p.router", funcptr(onI2pModeRouter))
+    doClick(addressbook, "synapse.i2p.addressbook", funcptr(onI2pModeAddressbook))
 
     doShow(win)
     doRun()

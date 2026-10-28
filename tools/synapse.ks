@@ -462,8 +462,9 @@ func toolEnforceI2pPrefs(profile) {
     emit "0"
 }
 
-func openI2pProfile(requestedIdentity) {
+func openI2pProfile(requestedIdentity, destination) {
     let identity = i2pIdentityFolder(requestedIdentity)
+    let startUrl = i2pStartUrl(destination)
     if len(identity) == 0 {
         print("Unknown I2P identity: " + requestedIdentity)
         emit "0"
@@ -493,11 +494,12 @@ func openI2pProfile(requestedIdentity) {
         print("I2P startup policy could not be written and verified")
         emit "0"
     }
-    if startSynapseBrowser(browser, profile, "i2p") != "1" {
+    if startSynapseBrowser(browser, profile, "i2p", destination) != "1" {
         print("Windows could not start Synapse")
         emit "0"
     }
     print("I2P " + identity + " started through " + i2pProxyHost() + ":" + i2pProxyPort())
+    print("Start page: " + startUrl)
     print("Profile: " + profile)
     emit "1"
 }
@@ -579,7 +581,7 @@ func usage() {
     print("Synapse KryptScript controller")
     print("  synapse-tool doctor")
     print("  synapse-tool i2p-check")
-    print("  synapse-tool i2p-open [personal|work|school|creator|second-account]")
+    print("  synapse-tool i2p-open [personal|work|school|creator|second-account] [home|subscriptions]")
     print("  synapse-tool apply")
     print("  synapse-tool build")
     print("  synapse-tool faster")
@@ -613,8 +615,10 @@ just run {
     }
     if command == "i2p-open" {
         let identity = "personal"
+        let destination = "home"
         if argCount() > 1 { identity = arg(1) }
-        if openI2pProfile(identity) == "1" { exit(0) }
+        if argCount() > 2 { destination = arg(2) }
+        if openI2pProfile(identity, destination) == "1" { exit(0) }
         exit(1)
     }
 

@@ -1,6 +1,7 @@
 module synapse_browser_spawn_windows
 
 import "k:base64"
+import "../../core/i2p.k"
 import "head:windows"
 
 func _synapseSpawnQuote(value) {
@@ -84,9 +85,9 @@ func windowsRunSucceeded(output) {
     emit contains(output, "__SYNAPSE_PROCESS_EXIT__0")
 }
 
-func startSynapseBrowser(browser, profile, mode) {
+func startSynapseBrowser(browser, profile, mode, destination) {
     let arguments = "-no-remote -profile " + _synapseSpawnQuote(profile)
-    if mode == "i2p" { arguments = arguments + " about:blank" }
+    if mode == "i2p" { arguments = arguments + " " + _synapseSpawnQuote(i2pStartUrl(destination)) }
 
     SetEnvironmentVariableA("MOZ_CRASHREPORTER_NO_REPORT", "1")
     emit windowsStartDetached(browser, arguments, _synapseSpawnDirectory(browser))

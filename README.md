@@ -132,11 +132,16 @@ a TCP listener at `127.0.0.1:4444`, then sends both HTTP and HTTPS through that
 local I2P+ proxy. Every I2P identity uses a durable profile such as
 `%LOCALAPPDATA%\Synapse\Profiles\synapse-i2p-personal`, separate from the same
 identity in Shield. Its generated `user.js` disables ordinary direct proxy
-fallback, WebRTC, native DNS, HTTP/3, prefetch, and network probes. The sole
-intentional proxy exception is numeric loopback `127.0.0.1`, allowing
-`C:\Program Files\i2p\docs\startconsole.html` to reach the router console at
-`http://127.0.0.1:7657`. I2P sites commonly need an explicit `http://` address.
-Run `dist\synapse-tool.exe i2p-check` to test the local listener.
+fallback, WebRTC, native DNS, HTTP/3, prefetch, and network probes. The I2P
+profile opens the local I2P+ Router Console at `http://127.0.0.1:7657`,
+where its curated starter links are available after router bootstrap. The
+I2P-only launcher also offers a shortcut to SusiDNS subscriptions at
+`http://127.0.0.1:7657/susidns/subscriptions`. The optional I2P+ curated hosts
+feed is `http://skank.i2p/hosts.txt`; adding it is a user-controlled trust
+decision, not an automatic setting. The sole intentional proxy exception is
+numeric loopback `127.0.0.1`, allowing the browser to reach the local router
+console. I2P sites commonly need an explicit `http://` address. Run
+`dist\synapse-tool.exe i2p-check` to test the local listener.
 
 This is a development integration, not an `.i2p`-only guarantee. I2P+ may send
 clearnet destinations through a router outproxy, and a successful TCP check
@@ -163,11 +168,22 @@ tools/synapse-macos.sh test-core
 tools/synapse-macos.sh apply
 tools/synapse-macos.sh build
 tools/synapse-macos.sh run
+# With I2P+ installed and bootstrapped:
+tools/synapse-macos.sh i2p-check
+tools/synapse-macos.sh i2p-open personal
+tools/synapse-macos.sh i2p-open personal subscriptions
 ```
 
 The macOS controller uses the same tracked overlay and privacy patch as the
-Windows controller. It keeps build state and profiles in `.synapse-build` and
-does not delete files from the upstream Firefox checkout.
+Windows controller. It keeps build state under `.synapse-build` and does not
+delete files from the upstream Firefox checkout. The macOS I2P+ command requires
+an already-running local HTTP proxy at `127.0.0.1:4444`; it creates a persistent,
+mode-and-identity-isolated profile under
+`~/Library/Application Support/Synapse/Profiles/` and opens the local Router
+Console. It never adds the optional `http://skank.i2p/hosts.txt` address-book
+subscription automatically. This is a local development path; the TCP probe
+confirms only that a listener exists, not that the router has bootstrapped or
+that traffic is protected by operating-system egress controls.
 
 ## Licensing
 
