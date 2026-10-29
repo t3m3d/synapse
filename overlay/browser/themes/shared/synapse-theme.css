@@ -24,5 +24,24 @@
     --chrome-content-separator-color: rgb(77 231 245 / 18%);
     --focus-outline-color: #4de7f5;
     --color-accent-attention: #46f0b5;
+
+    /* Interaction layer: signals, links, and elevated chrome cards derive
+     * from the same midnight palette. Values live here until the M4 token
+     * pass replaces them with a named design-token source. */
+
+    /* Toolbar buttons and ghost buttons tint on hover using the toolbox
+     * text color, so both states stay legible without a separate palette. */
+    --toolbarbutton-background-color-hover: rgb(255 255 255 / 9%);
+    --toolbarbutton-background-color-active: rgb(255 255 255 / 16%);
+    --button-background-color-hover: rgb(255 255 255 / 9%);
+    --button-background-color-active: rgb(255 255 255 / 16%);
+
+    /* Links and inline chrome affordances point at the cyan signal color. */
+    --link-color: #74d8f7;
+    --link-color-hover: #a4e6fb;
+    --link-color-active: #45b8dc;
+
+    /* Elevated chrome surfaces (identity panel, feature callouts). */
+    --background-color-box: #1a1540;
   }
 }
