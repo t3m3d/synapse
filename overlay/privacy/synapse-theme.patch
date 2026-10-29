@@ -1,0 +1,14 @@
+diff --git a/browser/themes/shared/jar.inc.mn b/browser/themes/shared/jar.inc.mn
+--- a/browser/themes/shared/jar.inc.mn
++++ b/browser/themes/shared/jar.inc.mn
+@@ -21,2 +21,3 @@
+   skin/classic/browser/browser-colors.css                      (../shared/browser-colors.css)
++  skin/classic/browser/synapse-theme.css                       (../shared/synapse-theme.css)
+   skin/classic/browser/browser-shared.css                      (../shared/browser-shared.css)
+diff --git a/browser/themes/shared/browser-shared.css b/browser/themes/shared/browser-shared.css
+--- a/browser/themes/shared/browser-shared.css
++++ b/browser/themes/shared/browser-shared.css
+@@ -5,2 +5,3 @@
+ @import url("chrome://browser/skin/browser-colors.css");
++@import url("chrome://browser/skin/synapse-theme.css");
+ @import url("chrome://browser/skin/addons/extension-controlled.css");

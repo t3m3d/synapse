@@ -101,6 +101,18 @@ apply_privacy_patch() {
   fi
 }
 
+apply_theme_patch() {
+  local patch="$workspace/overlay/privacy/synapse-theme.patch"
+  if git -C "$firefox_root" apply --check "$patch" >/dev/null 2>&1; then
+    git -C "$firefox_root" apply "$patch"
+    printf 'Applied Synapse browser theme patch.\n'
+  elif git -C "$firefox_root" apply --reverse --check "$patch" >/dev/null 2>&1; then
+    printf 'Synapse browser theme patch is already applied.\n'
+  else
+    fail "browser theme patch no longer applies cleanly"
+  fi
+}
+
 apply_overlay() {
   check_roots
   need_command rsync
@@ -109,6 +121,7 @@ apply_overlay() {
   [[ -f "$firefox_root/browser/branding/synapse/configure.sh" ]] || fail "branding overlay verification failed"
   [[ -f "$firefox_root/browser/app/profile/synapse.js" ]] || fail "privacy preferences verification failed"
   apply_privacy_patch
+  apply_theme_patch
   install_mozconfig
   printf 'Apply: complete\n'
 }

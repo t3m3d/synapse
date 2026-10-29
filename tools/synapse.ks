@@ -284,6 +284,37 @@ func installMozconfig(workspace, root) {
     emit "1"
 }
 
+func applyPatchIdempotently(root, patchPath, description) {
+    if !exists(patchPath) {
+        print("Missing " + description + " patch: " + patchPath)
+        emit "0"
+    }
+
+    let check = "git -C " + quote(root) + " apply --check " + quote(patchPath)
+    let checkOutput = exec(check + " >nul 2>&1 && echo __SYNAPSE_OK__ || echo __SYNAPSE_NO__")
+    if contains(checkOutput, "__SYNAPSE_OK__") {
+        let applyOutput = exec("git -C " + quote(root) + " apply " + quote(patchPath) + " 2>&1 && echo __SYNAPSE_OK__ || echo __SYNAPSE_FAIL__")
+        if len(applyOutput) > 0 { print(applyOutput) }
+        if contains(applyOutput, "__SYNAPSE_OK__") {
+            print("Applied Synapse " + description + " patch.")
+            emit "1"
+        }
+        print(description + " patch failed while applying.")
+        emit "0"
+    }
+
+    let reverse = "git -C " + quote(root) + " apply --reverse --check " + quote(patchPath)
+    let reverseOutput = exec(reverse + " >nul 2>&1 && echo __SYNAPSE_OK__ || echo __SYNAPSE_NO__")
+    if contains(reverseOutput, "__SYNAPSE_OK__") {
+        print("Synapse " + description + " patch is already applied.")
+        emit "1"
+    }
+
+    print(description + " patch does not apply cleanly in either direction.")
+    print("Source may have drifted; inspect: " + patchPath)
+    emit "0"
+}
+
 func applyPrivacyPatch(workspace, root) {
     let patchPath = joinPath(joinPath(joinPath(workspace, "overlay"), "privacy"), "privacy-loader.patch")
     if !exists(patchPath) {
@@ -316,6 +347,38 @@ func applyPrivacyPatch(workspace, root) {
     emit "0"
 }
 
+func applyThemePatch(workspace, root) {
+    let patchPath = joinPath(joinPath(joinPath(workspace, "overlay"), "privacy"), "synapse-theme.patch")
+    if !exists(patchPath) {
+        print("Missing browser theme patch: " + patchPath)
+        emit "0"
+    }
+
+    let check = "git -C " + quote(root) + " apply --check " + quote(patchPath)
+    let checkOutput = exec(check + " >nul 2>&1 && echo __SYNAPSE_OK__ || echo __SYNAPSE_NO__")
+    if contains(checkOutput, "__SYNAPSE_OK__") {
+        let applyOutput = exec("git -C " + quote(root) + " apply " + quote(patchPath) + " 2>&1 && echo __SYNAPSE_OK__ || echo __SYNAPSE_FAIL__")
+        if len(applyOutput) > 0 { print(applyOutput) }
+        if contains(applyOutput, "__SYNAPSE_OK__") {
+            print("Applied Synapse browser theme patch.")
+            emit "1"
+        }
+        print("Browser theme patch failed while applying.")
+        emit "0"
+    }
+
+    let reverse = "git -C " + quote(root) + " apply --reverse --check " + quote(patchPath)
+    let reverseOutput = exec(reverse + " >nul 2>&1 && echo __SYNAPSE_OK__ || echo __SYNAPSE_NO__")
+    if contains(reverseOutput, "__SYNAPSE_OK__") {
+        print("Synapse browser theme patch is already applied.")
+        emit "1"
+    }
+
+    print("Browser theme patch does not apply cleanly in either direction.")
+    print("Source may have drifted; inspect: " + patchPath)
+    emit "0"
+}
+
 func applyOverlay() {
     if validateRoots("0") != "1" { emit "0" }
     let workspace = workspaceRoot()
@@ -334,6 +397,7 @@ func applyOverlay() {
         emit "0"
     }
     if applyPrivacyPatch(workspace, root) != "1" { emit "0" }
+    if applyThemePatch(workspace, root) != "1" { emit "0" }
     if installMozconfig(workspace, root) != "1" { emit "0" }
     print("Apply: complete")
     emit "1"

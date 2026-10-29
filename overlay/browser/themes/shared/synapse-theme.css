@@ -1,0 +1,28 @@
+/* SPDX-License-Identifier: MPL-2.0 */
+
+/* Synapse browser chrome palette: midnight indigo with cyan signal accents.
+ * Keep Firefox's native contrast modes and system themes authoritative. */
+@media not ((forced-colors) or (-moz-native-theme)) {
+  :root:not([lwtheme]) {
+    --toolbox-background-color: #100b28;
+    --toolbox-background-color-inactive: #17132f;
+    --toolbox-text-color: #f4f7ff;
+    --toolbox-text-color-inactive: #c2c5d8;
+    --toolbar-background-color: #15112f;
+    --toolbar-text-color: #f4f7ff;
+    --toolbar-field-background-color: #0c0a20;
+    --toolbar-field-text-color: #f4f7ff;
+    --toolbar-field-border-color: #38335f;
+    --toolbar-field-background-color-focus: #0c0a20;
+    --toolbar-field-text-color-focus: #f4f7ff;
+    --toolbar-field-border-color-focus: #4de7f5;
+    --toolbarbutton-icon-fill: #d9e8ff;
+    --toolbarbutton-icon-fill-attention: #46f0b5;
+    --tab-background-color-selected: #211d45;
+    --tab-text-color-selected: #f4f7ff;
+    --tabs-navbar-separator-color: rgb(77 231 245 / 22%);
+    --chrome-content-separator-color: rgb(77 231 245 / 18%);
+    --focus-outline-color: #4de7f5;
+    --color-accent-attention: #46f0b5;
+  }
+}
