@@ -1,47 +1,69 @@
 /* SPDX-License-Identifier: MPL-2.0 */
 
-/* Synapse browser chrome palette: midnight indigo with cyan signal accents.
- * Keep Firefox's native contrast modes and system themes authoritative. */
+/* Synapse browser chrome palette: Krypton dark indigo with violet accents
+ * (krypton-lang.org, kryptonbytes.com). The window pins the dark scheme so
+ * the toolbox, toolbar, titlebar strip and macOS menu bar all draw in the
+ * Krypton palette regardless of the system appearance. Forced-colors and
+ * high-contrast modes stay authoritative. */
 @media not ((forced-colors) or (-moz-native-theme)) {
   :root:not([lwtheme]) {
-    --toolbox-background-color: #100b28;
-    --toolbox-background-color-inactive: #17132f;
-    --toolbox-text-color: #f4f7ff;
-    --toolbox-text-color-inactive: #c2c5d8;
-    --toolbar-background-color: #15112f;
-    --toolbar-text-color: #f4f7ff;
-    --toolbar-field-background-color: #0c0a20;
-    --toolbar-field-text-color: #f4f7ff;
-    --toolbar-field-border-color: #38335f;
-    --toolbar-field-background-color-focus: #0c0a20;
-    --toolbar-field-text-color-focus: #f4f7ff;
-    --toolbar-field-border-color-focus: #4de7f5;
-    --toolbarbutton-icon-fill: #d9e8ff;
-    --toolbarbutton-icon-fill-attention: #46f0b5;
-    --tab-background-color-selected: #211d45;
-    --tab-text-color-selected: #f4f7ff;
-    --tabs-navbar-separator-color: rgb(77 231 245 / 22%);
-    --chrome-content-separator-color: rgb(77 231 245 / 18%);
-    --focus-outline-color: #4de7f5;
-    --color-accent-attention: #46f0b5;
+    color-scheme: dark;
 
-    /* Interaction layer: signals, links, and elevated chrome cards derive
-     * from the same midnight palette. Values live here until the M4 token
-     * pass replaces them with a named design-token source. */
+    /* Surfaces: kryptonbytes.com --nav-bg/--bg/--code-bg and cards. */
+    --toolbox-background-color: #0a0a0f;
+    --toolbox-background-color-inactive: #0e0e15;
+    --toolbox-text-color: #f5f5fb;
+    --toolbox-text-color-inactive: #9a9ab2;
+    --toolbar-background-color: #0f0f17;
+    --toolbar-text-color: #f5f5fb;
+    --toolbar-field-background-color: #0b0b15;
+    --toolbar-field-text-color: #f5f5fb;
+    --toolbar-field-border-color: #2a2a3c;
+    --toolbar-field-background-color-focus: #0b0b15;
+    --toolbar-field-text-color-focus: #f5f5fb;
+    --toolbar-field-border-color-focus: #7722ff;
+    --background-color-box: #1a1a26;
 
-    /* Toolbar buttons and ghost buttons tint on hover using the toolbox
-     * text color, so both states stay legible without a separate palette. */
-    --toolbarbutton-background-color-hover: rgb(255 255 255 / 9%);
-    --toolbarbutton-background-color-active: rgb(255 255 255 / 16%);
+    /* Signals: Krypton violet. */
+    --toolbarbutton-icon-fill: #e8ddff;
+    --toolbarbutton-icon-fill-attention: #a974ff;
+    --tab-background-color-selected: #1a1a26;
+    --tab-text-color-selected: #f5f5fb;
+    --link-color: #a974ff;
+    --link-color-hover: #c0a0ff;
+    --link-color-active: #7722ff;
+
+    /* Structure: the site borders, violet-tinted dark separators. */
+    --tabs-navbar-separator-color: rgb(119 34 255 / 35%);
+    --chrome-content-separator-color: rgb(119 34 255 / 28%);
+    --focus-outline-color: #7722ff;
+    --color-accent-attention: #8842ff;
+
+    /* Interaction layer: violet-tinted hovers over the dark surfaces.
+     * Values live here until the M4 token pass names them. */
+    --toolbarbutton-background-color-hover: rgb(119 34 255 / 18%);
+    --toolbarbutton-background-color-active: rgb(119 34 255 / 30%);
     --button-background-color-hover: rgb(255 255 255 / 9%);
     --button-background-color-active: rgb(255 255 255 / 16%);
 
-    /* Links and inline chrome affordances point at the cyan signal color. */
-    --link-color: #74d8f7;
-    --link-color-hover: #a4e6fb;
-    --link-color-active: #45b8dc;
+    /* Panels (all-tabs popup, identity panel, app panels): exact Krypton
+     * values so menu items stay legible over the dark chrome. */
+    --panel-background-color: #1a1a26;
+    --panel-border-color: #2a2a3c;
+    --panel-text-color: #f5f5fb;
 
-    /* Elevated chrome surfaces (identity panel, feature callouts). */
-    --background-color-box: #1a1540;
+    /* macOS: the titlebar strip must draw with the chrome palette instead
+     * of the system titlebar material, which otherwise tints light gray
+     * through the dark toolbox. Explicit backgrounds for the titlebar rows. */
+    @media (-moz-platform: macos) {
+      :root:not([lwtheme]):not([macOSNativeFullscreen])[customtitlebar] body::after {
+        appearance: none !important;
+        background-color: var(--toolbox-background-color) !important;
+      }
+
+      .browser-titlebar {
+        background-color: var(--toolbox-background-color) !important;
+      }
+    }
   }
 }

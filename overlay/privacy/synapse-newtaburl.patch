@@ -1,0 +1,74 @@
+diff --git a/browser/modules/AboutNewTab.sys.mjs b/browser/modules/AboutNewTab.sys.mjs
+index fde4f9eb7672..e0080bf3dfbd 100644
+--- a/browser/modules/AboutNewTab.sys.mjs
++++ b/browser/modules/AboutNewTab.sys.mjs
+@@ -20,6 +20,7 @@ ChromeUtils.defineESModuleGetters(lazy, {
+ });
+ 
+ const ABOUT_URL = "about:newtab";
++const NEW_TAB_URL_PREF = "browser.newtab.url";
+ const PREF_ACTIVITY_STREAM_DEBUG = "browser.newtabpage.activity-stream.debug";
+ // AboutHomeStartupCache needs us in "quit-application", so stay alive longer.
+ // TODO: We could better have a shared async shutdown blocker?
+@@ -110,6 +111,31 @@ export const AboutNewTab = {
+       this,
+       lazy.TelemetryReportingPolicy.TELEMETRY_TOU_ACCEPTED_OR_INELIGIBLE
+     );
++
++    // Synapse: honor the distribution's new tab URL (browser.newtab.url) so
++    // a default-branch pref drives the out-of-box new tab page. Overrides
++    // from extensions or the settings UI registered after this still win.
++    this._applyNewTabURLPref();
++    Services.prefs.addObserver(NEW_TAB_URL_PREF, this);
++  },
++
++  _applyNewTabURLPref() {
++    if (this._newTabURLOverridden && !this._prefControlled) {
++      // An extension or the settings UI already chose a URL; keep it.
++      return;
++    }
++    const url = Services.prefs
++      .getStringPref(NEW_TAB_URL_PREF, ABOUT_URL)
++      .trim();
++    if (url === ABOUT_URL) {
++      if (this._prefControlled) {
++        this._prefControlled = false;
++        this.resetNewTabURL();
++      }
++      return;
++    }
++    this.newTabURL = url;
++    this._prefControlled = true;
+   },
+ 
+   /**
+@@ -285,6 +311,7 @@ export const AboutNewTab = {
+     }
+     try {
+       Services.obs.removeObserver(this, TOPIC_APP_QUIT);
++      Services.prefs.removeObserver(NEW_TAB_URL_PREF, this);
+       Services.obs.removeObserver(
+         this,
+         lazy.TelemetryReportingPolicy.TELEMETRY_TOU_ACCEPTED_OR_INELIGIBLE
+@@ -344,7 +371,7 @@ export const AboutNewTab = {
+ 
+   // nsIObserver implementation
+ 
+-  observe(subject, topic) {
++  observe(subject, topic, data) {
+     switch (topic) {
+       case TOPIC_APP_QUIT: {
+         this.uninit();
+@@ -360,6 +387,12 @@ export const AboutNewTab = {
+         Services.tm.dispatchToMainThread(() => this.onBrowserReady());
+         break;
+       }
++      case "nsPref:changed": {
++        if (data === NEW_TAB_URL_PREF) {
++          this._applyNewTabURLPref();
++        }
++        break;
++      }
+     }
+   },
+ };

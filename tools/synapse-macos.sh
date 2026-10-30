@@ -113,6 +113,30 @@ apply_theme_patch() {
   fi
 }
 
+apply_newtaburl_patch() {
+  local patch="$workspace/overlay/privacy/synapse-newtaburl.patch"
+  if git -C "$firefox_root" apply --check "$patch" >/dev/null 2>&1; then
+    git -C "$firefox_root" apply "$patch"
+    printf 'Applied Synapse new tab URL patch.\n'
+  elif git -C "$firefox_root" apply --reverse --check "$patch" >/dev/null 2>&1; then
+    printf 'Synapse new tab URL patch is already applied.\n'
+  else
+    fail "new tab URL patch no longer applies cleanly"
+  fi
+}
+
+apply_startpage_patch() {
+  local patch="$workspace/overlay/privacy/synapse-startpage-label.patch"
+  if git -C "$firefox_root" apply --check "$patch" >/dev/null 2>&1; then
+    git -C "$firefox_root" apply "$patch"
+    printf 'Applied Synapse start page label patch.\n'
+  elif git -C "$firefox_root" apply --reverse --check "$patch" >/dev/null 2>&1; then
+    printf 'Synapse start page label patch is already applied.\n'
+  else
+    fail "start page label patch no longer applies cleanly"
+  fi
+}
+
 apply_overlay() {
   check_roots
   need_command rsync
@@ -122,6 +146,8 @@ apply_overlay() {
   [[ -f "$firefox_root/browser/app/profile/synapse.js" ]] || fail "privacy preferences verification failed"
   apply_privacy_patch
   apply_theme_patch
+  apply_newtaburl_patch
+  apply_startpage_patch
   install_mozconfig
   printf 'Apply: complete\n'
 }
@@ -424,7 +450,11 @@ case "$command_name" in
   i2p-router-start) i2p_router_start ;;
   i2p-router-stop) i2p_router_stop ;;
   i2p-open) i2p_open "${2:-personal}" "${3:-home}" ;;
-  package) run_mach package package ;;
+  package)
+    # Rebuild the repackaged chrome quickly, then produce the .app bundle.
+    run_mach buildfaster build faster
+    run_mach package package
+    ;;
   test-extension)
     run_mach test-extension test \
       browser/components/extensions/test/browser/browser_ext_browserAction_simple.js \

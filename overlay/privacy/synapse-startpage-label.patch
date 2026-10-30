@@ -1,0 +1,106 @@
+diff --git a/browser/base/content/browser-main.js b/browser/base/content/browser-main.js
+index b100876fc1c1..08c220ac32f3 100644
+--- a/browser/base/content/browser-main.js
++++ b/browser/base/content/browser-main.js
+@@ -37,6 +37,10 @@
+   }
+   ChromeUtils.importESModule("chrome://browser/content/urlbar/UrlbarInput.mjs", { global: "current" });
+   ChromeUtils.importESModule("chrome://browser/content/urlbar/SearchbarInput.mjs", { global: "current" });
++  Services.scriptloader.loadSubScript(
++    "chrome://browser/content/browser-synapse-startpage.js",
++    this
++  );
+ }
+ 
+ window.onload = gBrowserInit.onLoad.bind(gBrowserInit);
+diff --git a/browser/base/jar.mn b/browser/base/jar.mn
+index 783c67d397a5..40d1ba52548f 100644
+--- a/browser/base/jar.mn
++++ b/browser/base/jar.mn
+@@ -60,6 +60,7 @@ browser.jar:
+         content/browser/browser-siteProtections.js          (content/browser-siteProtections.js)
+         content/browser/browser-sync.js                     (content/browser-sync.js)
+         content/browser/browser-customtitlebar.js           (content/browser-customtitlebar.js)
++        content/browser/browser-synapse-startpage.js        (content/browser-synapse-startpage.js)
+         content/browser/browser-toolbarKeyNav.js            (content/browser-toolbarKeyNav.js)
+         content/browser/browser-thumbnails.js               (content/browser-thumbnails.js)
+         content/browser/browser-trustPanel.js               (content/browser-trustPanel.js)
+diff --git a/browser/components/newtab/AboutNewTabRedirector.sys.mjs b/browser/components/newtab/AboutNewTabRedirector.sys.mjs
+index 33ebe5111a15..aaa1deb202ba 100644
+--- a/browser/components/newtab/AboutNewTabRedirector.sys.mjs
++++ b/browser/components/newtab/AboutNewTabRedirector.sys.mjs
+@@ -61,6 +61,20 @@ const PREF_NEWTAB_SELF_LOADING =
+   "browser.newtabpage.activity-stream.selfLoading.enabled";
+ const PREF_NEWTAB_REMOTE_RENDERER_ENABLED =
+   "browser.newtabpage.activity-stream.remote-renderer.enabled";
++
++// Synapse distribution default: browser.newtab.url (registered by
++// app/profile/synapse.js) names a concrete start-page URL. When set, it
++// replaces the built-in Activity Stream page for about:newtab loads, so
++// new tabs, restored sessions and the homepage all open the start page;
++// about:home keeps its startup-cache handling.
++const SYNAPSE_NEW_TAB_PREF = "browser.newtab.url";
++function synapseNewTabURL() {
++  let url = Services.prefs.getStringPref(SYNAPSE_NEW_TAB_PREF, "").trim();
++  if (!url || url === "about:newtab" || url === "about:home" || url === "about:blank") {
++    return null;
++  }
++  return url;
++}
+ /**
+  * The AboutHomeStartupCacheChild is responsible for connecting the
+  * AboutNewTabRedirectorChild with a cached document and script for about:home
+@@ -539,10 +553,24 @@ export class AboutNewTabRedirectorParent extends BaseAboutNewTabRedirector {
+ 
+   newChannel(uri, loadInfo) {
+     let chromeURI = this.getChromeURI(uri);
++    let synapseURL = synapseNewTabURL();
+ 
+-    if (
+-      uri.spec.startsWith("about:home") ||
+-      (uri.spec.startsWith("about:newtab") && lazy.BUILTIN_NEWTAB_ENABLED)
++    let synapseURL = synapseNewTabURL();
++
++    if (uri.spec.startsWith("about:home")) {
++      if (synapseURL) {
++        chromeURI = Services.io.newURI(synapseURL);
++      } else {
++        chromeURI = Services.io.newURI(this.defaultURL);
++      }
++    } else if (
++      uri.spec.startsWith("about:newtab") &&
++      synapseURL
++    ) {
++      chromeURI = Services.io.newURI(synapseURL);
++    } else if (
++      uri.spec.startsWith("about:newtab") &&
++      lazy.BUILTIN_NEWTAB_ENABLED
+     ) {
+       chromeURI = Services.io.newURI(this.defaultURL);
+     }
+@@ -603,7 +631,12 @@ export class AboutNewTabRedirectorChild extends BaseAboutNewTabRedirector {
+       if (cacheChannel) {
+         return cacheChannel;
+       }
+-      pageURI = Services.io.newURI(this.defaultURL);
++      let synapseURL = synapseNewTabURL();
++      if (synapseURL) {
++        pageURI = Services.io.newURI(synapseURL);
++      } else {
++        pageURI = Services.io.newURI(this.defaultURL);
++      }
+     } else {
+       // The only other possibility is about:newtab.
+       //
+@@ -613,7 +646,10 @@ export class AboutNewTabRedirectorChild extends BaseAboutNewTabRedirector {
+       // it still happens to be around.
+       AboutHomeStartupCacheChild.disqualifyCache();
+ 
+-      if (lazy.BUILTIN_NEWTAB_ENABLED) {
++      let synapseURL = synapseNewTabURL();
++      if (synapseURL) {
++        pageURI = Services.io.newURI(synapseURL);
++      } else if (lazy.BUILTIN_NEWTAB_ENABLED) {
+         pageURI = Services.io.newURI(this.defaultURL);
+       } else {
+         pageURI = this.getChromeURI(uri);
