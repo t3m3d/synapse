@@ -100,6 +100,7 @@
     /* Draw the strip on the toolbar box itself: its background is painted by
      * Gecko, unlike the window background behind a transparent titlebar. */
     #places[customtitlebar] #placesToolbar {
+      position: relative;
       padding-top: 28px;
       background-color: #171324 !important;
       border-bottom: 1px solid rgb(119 34 255 / 28%);
@@ -109,6 +110,96 @@
      * reads as the system grey trim. Remove it so the strip stays Synapse. */
     #places[customtitlebar] #placesToolbar::after {
       display: none !important;
+    }
+
+    /* macOS draws the traffic lights itself and cannot tint them, so the
+     * window declares no -moz-window-button-box and the widget keeps the
+     * native buttons off-window. These are their dark replacements. */
+    #places[customtitlebar] .synapse-titlebar-buttons {
+      position: absolute;
+      inset-block-start: 6px;
+      inset-inline-start: 10px;
+      display: flex;
+      gap: 8px;
+      z-index: 2147483647;
+      -moz-window-dragging: no-drag;
+    }
+
+    #places[customtitlebar] .synapse-titlebar-button {
+      appearance: none;
+      -moz-default-appearance: none;
+      margin: 0;
+      padding: 0;
+      min-width: 12px;
+      min-height: 12px;
+      width: 12px;
+      height: 12px;
+      border: 1px solid rgb(255 255 255 / 12%);
+      border-radius: 50%;
+      position: relative;
+      -moz-window-dragging: no-drag;
+      transition: background-color 100ms ease, border-color 100ms ease;
+    }
+
+    #places[customtitlebar] .synapse-titlebar-button::after {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font: 700 9px/1 -apple-system, BlinkMacSystemFont, sans-serif;
+      color: rgb(12 10 20 / 80%);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 80ms ease;
+    }
+
+    #places[customtitlebar] .synapse-titlebar-buttons:hover .synapse-titlebar-button::after,
+    #places[customtitlebar] .synapse-titlebar-button:focus-visible::after {
+      opacity: 1;
+    }
+
+    #places[customtitlebar] .synapse-close {
+      background-color: #5c2831;
+    }
+
+    #places[customtitlebar] .synapse-minimize {
+      background-color: #574322;
+    }
+
+    #places[customtitlebar] .synapse-zoom {
+      background-color: #24452f;
+    }
+
+    #places[customtitlebar] .synapse-close:hover {
+      background-color: #d94a52;
+      border-color: rgb(255 255 255 / 24%);
+    }
+
+    #places[customtitlebar] .synapse-minimize:hover {
+      background-color: #d9a13a;
+      border-color: rgb(255 255 255 / 24%);
+    }
+
+    #places[customtitlebar] .synapse-zoom:hover {
+      background-color: #35b06a;
+      border-color: rgb(255 255 255 / 24%);
+    }
+
+    #places[customtitlebar] .synapse-titlebar-button:active {
+      filter: brightness(0.85);
+    }
+
+    #places[customtitlebar] .synapse-close::after {
+      content: "✕";
+    }
+
+    #places[customtitlebar] .synapse-minimize::after {
+      content: "−";
+    }
+
+    #places[customtitlebar] .synapse-zoom::after {
+      content: "+";
     }
 
     #places[customtitlebar]::before {
