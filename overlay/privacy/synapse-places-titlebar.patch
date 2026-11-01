@@ -1,0 +1,22 @@
+diff --git a/browser/base/jar.mn b/browser/base/jar.mn
+--- a/browser/base/jar.mn
++++ b/browser/base/jar.mn
+@@ -68,6 +68,7 @@
+         content/browser/browser-graphics-utils.js           (content/browser-graphics-utils.js)
+         content/browser/browser-webrtc.js                   (content/browser-webrtc.js)
+         content/browser/global-scripts.js                   (content/global-scripts.js)
++        content/browser/synapse-places-titlebar.js        (content/synapse-places-titlebar.js)
+         content/browser/main-popupset.js                    (content/main-popupset.js)
+ *       content/browser/pageinfo/pageInfo.xhtml             (content/pageinfo/pageInfo.xhtml)
+         content/browser/pageinfo/pageInfo.js                (content/pageinfo/pageInfo.js)
+diff --git a/browser/components/places/content/places.xhtml b/browser/components/places/content/places.xhtml
+--- a/browser/components/places/content/places.xhtml
++++ b/browser/components/places/content/places.xhtml
+@@ -76,6 +76,7 @@
+   </linkset>
+ 
+   <script src="chrome://browser/content/places/places.js"/>
++  <script src="chrome://browser/content/synapse-places-titlebar.js"/>
+   <script src="chrome://global/content/editMenuOverlay.js"/>
+ #ifndef XP_MACOSX
+   <!-- On Mac, this is included via macWindow.inc.xhtml -> global-scripts.js -> browser.js -> defineLazyScriptGetter -->

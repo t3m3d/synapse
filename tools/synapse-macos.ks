@@ -323,6 +323,8 @@ func applyOverlay() {
 
     applyPatch(overlayPatch("privacy-loader.patch"), "privacy loader")
     applyPatch(overlayPatch("synapse-theme.patch"), "browser theme")
+    applyPatch(overlayPatch("synapse-places-theme.patch"), "places theme")
+    applyPatch(overlayPatch("synapse-places-titlebar.patch"), "places titlebar")
     applyPatch(overlayPatch("synapse-newtaburl.patch"), "new tab URL")
     applyPatch(overlayPatch("synapse-startpage-label.patch"), "start page label")
     applyPatch(overlayPatch("synapse-session-recovery.patch"), "session recovery popup")

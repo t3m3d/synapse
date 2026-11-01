@@ -1,0 +1,26 @@
+diff --git a/browser/themes/shared/jar.inc.mn b/browser/themes/shared/jar.inc.mn
+--- a/browser/themes/shared/jar.inc.mn
++++ b/browser/themes/shared/jar.inc.mn
+@@ -21,6 +21,7 @@
+   skin/classic/browser/browser-colors.css                      (../shared/browser-colors.css)
+   skin/classic/browser/synapse-theme.css                       (../shared/synapse-theme.css)
+   skin/classic/browser/browser-shared.css                      (../shared/browser-shared.css)
++  skin/classic/browser/synapse-places.css                      (../shared/synapse-places.css)
+   skin/classic/browser/formautofill-notification.css           (../shared/formautofill-notification.css)
+   skin/classic/browser/identity-credential-notification.css    (../shared/identity-credential-notification.css)
+   skin/classic/browser/menupanel.css                           (../shared/menupanel.css)
+diff --git a/browser/components/places/content/places.xhtml b/browser/components/places/content/places.xhtml
+--- a/browser/components/places/content/places.xhtml
++++ b/browser/components/places/content/places.xhtml
+@@ -47,6 +47,11 @@
+     <html:link
+       rel="stylesheet"
+       href="chrome://browser/skin/places/organizer.css"
++    />
++
++    <html:link
++      rel="stylesheet"
++      href="chrome://browser/skin/synapse-places.css"
+     />
+ 
+     <html:link

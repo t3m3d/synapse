@@ -1,0 +1,124 @@
+/* SPDX-License-Identifier: MPL-2.0 */
+
+/* Synapse "Manage Bookmarks" (Places Organizer) palette.  The Library is a
+ * separate chrome window, so it never sees browser-shared.css; this sheet
+ * gives it the same Krypton dark indigo surfaces, violet selection, and a
+ * titlebar strip that matches the main window.  Forced-colors and
+ * high-contrast modes stay authoritative. */
+@media not ((forced-colors) or (-moz-native-theme)) {
+  #places {
+    color-scheme: dark;
+    background-color: #171324;
+    color: #f5f5fb;
+
+    --toolbarbutton-icon-fill: #e8ddff;
+    --toolbarbutton-icon-fill-attention: #a974ff;
+    --toolbarbutton-background-color-hover: rgb(119 34 255 / 18%);
+    --toolbarbutton-background-color-active: rgb(119 34 255 / 30%);
+    --button-background-color-hover: rgb(255 255 255 / 9%);
+    --button-background-color-active: rgb(255 255 255 / 16%);
+    --focus-outline-color: #7722ff;
+    --link-color: #a974ff;
+    --link-color-hover: #c0a0ff;
+    --link-color-active: #7722ff;
+    --panel-background-color: #1a1a26;
+    --panel-border-color: #2a2a3c;
+    --panel-text-color: #f5f5fb;
+  }
+
+  /* The organizer paints the macOS titlebar into #placesToolbar::after with
+   * the native titlebar appearance, which follows the system and tints light
+   * over the dark chrome. Draw the Synapse strip instead. */
+  #placesToolbar {
+    background-color: #171324;
+    color: #f5f5fb;
+    border-bottom: 1px solid rgb(119 34 255 / 28%);
+
+    &::after {
+      appearance: none !important;
+      background-color: #171324 !important;
+    }
+  }
+
+  #placesToolbar > toolbarbutton,
+  #placesMenu > menu {
+    color: #f5f5fb;
+  }
+
+  #placesToolbar > toolbarbutton:hover,
+  #placesMenu > menu:hover {
+    background-color: rgb(119 34 255 / 18%);
+  }
+
+  #searchFilter {
+    color: #f5f5fb;
+    --input-text-background-color: #0b0b15;
+    --input-text-color: #f5f5fb;
+    --input-text-border-color: #2a2a3c;
+  }
+
+  #placesList,
+  #contentView {
+    background-color: #171324;
+    color: #f5f5fb;
+  }
+
+  #placesList > treechildren::-moz-tree-row,
+  #contentView > treechildren::-moz-tree-row {
+    background-color: transparent;
+  }
+
+  #placesList > treechildren::-moz-tree-row(selected),
+  #contentView > treechildren::-moz-tree-row(selected) {
+    background-color: #7722ff;
+  }
+
+  #placesList > treechildren::-moz-tree-cell-text(selected),
+  #contentView > treechildren::-moz-tree-cell-text(selected),
+  #placesList > treechildren::-moz-tree-cell-text(hover),
+  #contentView > treechildren::-moz-tree-cell-text(hover) {
+    color: #ffffff;
+  }
+
+  treecol,
+  treecolpicker {
+    background-color: #1a1a26;
+    color: #9a9ab2;
+    border-color: #2a2a3c;
+  }
+
+  #detailsPane,
+  #infoBox {
+    background-color: #171324;
+    color: #f5f5fb;
+  }
+
+  /* macOS: once customtitlebar is set the window draws its content into the
+   * titlebar area, so reserve a strip for the traffic lights and paint it with
+   * the main window's toolbox color instead of the system material. */
+  @media (-moz-platform: macos) {
+    /* Draw the strip on the toolbar box itself: its background is painted by
+     * Gecko, unlike the window background behind a transparent titlebar. */
+    #places[customtitlebar] #placesToolbar {
+      padding-top: 28px;
+      background-color: #171324 !important;
+      border-bottom: 1px solid rgb(119 34 255 / 28%);
+    }
+
+    /* The organizer paints native titlebar material here; on a dark chrome it
+     * reads as the system grey trim. Remove it so the strip stays Synapse. */
+    #places[customtitlebar] #placesToolbar::after {
+      display: none !important;
+    }
+
+    #places[customtitlebar]::before {
+      content: "";
+      position: fixed;
+      inset: 0 0 auto 0;
+      height: 28px;
+      background-color: #171324;
+      -moz-window-dragging: drag;
+      z-index: 2147483647;
+    }
+  }
+}
