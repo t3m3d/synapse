@@ -22,8 +22,22 @@ fi
 # macOS ships a Kerberos credential-cache tool named kcc in /usr/bin, which can
 # shadow the Krypton compiler when /usr/local/bin is later in PATH. Select the
 # compiler by its version banner instead of by name alone.
+# Optional checkout-local override (.synapse-kcc, gitignored) so a development
+# compiler can be selected persistently without exporting a variable per shell
+# and without committing a machine-specific path. One path per line; a relative
+# path resolves against the repository root, so `../krypton/bootstrap/...` works.
+local_override=""
+if [[ -f "$root/.synapse-kcc" ]]; then
+  IFS= read -r local_override < "$root/.synapse-kcc" || true
+  local_override="${local_override%$'\r'}"
+  if [[ -n "$local_override" && "$local_override" != /* ]]; then
+    local_override="$root/$local_override"
+  fi
+fi
+
 kcc=""
-for candidate in "${SYNAPSE_KCC:-}" "$(command -v kcc 2>/dev/null || true)" \
+for candidate in "${SYNAPSE_KCC:-}" "$local_override" \
+                 "$(command -v kcc 2>/dev/null || true)" \
                  /usr/local/bin/kcc /opt/homebrew/bin/kcc; do
   [[ -n "$candidate" && -x "$candidate" ]] || continue
   if "$candidate" --version 2>/dev/null | head -n 1 | grep -q '^kcc version '; then
@@ -33,7 +47,7 @@ for candidate in "${SYNAPSE_KCC:-}" "$(command -v kcc 2>/dev/null || true)" \
 done
 
 if [[ -z "$kcc" ]]; then
-  printf 'Synapse: Krypton compiler is missing (install Krypton 2.4+ or set SYNAPSE_KCC)\n' >&2
+  printf 'Synapse: Krypton compiler is missing (install Krypton 2.4+, set SYNAPSE_KCC, or add .synapse-kcc)\n' >&2
   exit 1
 fi
 

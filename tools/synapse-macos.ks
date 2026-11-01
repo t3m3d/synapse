@@ -160,8 +160,24 @@ func checkRoots() {
 // macOS ships a Kerberos credential-cache tool named kcc in /usr/bin, which can
 // shadow the Krypton compiler when /usr/local/bin is later in PATH. Resolve the
 // compiler by its version banner instead of by name alone.
+// localKccOverride: optional checkout-local compiler selection (.synapse-kcc,
+// gitignored), so a development compiler can be used persistently without
+// exporting a variable per shell and without committing a machine-specific path.
+// First line only; a relative path resolves against the repository root.
+func localKccOverride() {
+    let root = workspaceRoot()
+    if len(root) == 0 { emit "" }
+    let file = joinPath(root, ".synapse-kcc")
+    if isFile(file) != 1 { emit "" }
+    let value = chomp(getLine(exec("cat " + quote(file) + " 2>/dev/null"), 0))
+    if len(value) == 0 { emit "" }
+    if startsWith(value, "/") == 1 { emit value }
+    emit joinPath(root, value)
+}
+
 func kryptonKccCandidates() {
-    let list = envValue("SYNAPSE_KCC") + "\n" + chomp(exec("command -v kcc 2>/dev/null"))
+    let list = envValue("SYNAPSE_KCC") + "\n" + localKccOverride()
+    list = list + "\n" + chomp(exec("command -v kcc 2>/dev/null"))
     list = list + "\n/usr/local/bin/kcc\n/opt/homebrew/bin/kcc"
     emit list
 }
@@ -189,7 +205,7 @@ func findKryptonKcc() {
 func requireKcc() {
     let kcc = findKryptonKcc()
     if len(kcc) == 0 {
-        fail("Krypton compiler is missing (install Krypton 2.4+ or set SYNAPSE_KCC)")
+        fail("Krypton compiler is missing (install Krypton 2.4+, set SYNAPSE_KCC, or add .synapse-kcc)")
     }
     emit kcc
 }
@@ -219,7 +235,7 @@ func doctor() {
     if len(kcc) > 0 {
         print("Krypton compiler: ok (" + kcc + ", " + chomp(getLine(runBody(quote(kcc) + " --version"), 0)) + ")")
     } else {
-        print("Krypton compiler: missing (install Krypton 2.4+ or set SYNAPSE_KCC)")
+        print("Krypton compiler: missing (install Krypton 2.4+, set SYNAPSE_KCC, or add .synapse-kcc)")
         failures += 1
     }
 
@@ -699,6 +715,9 @@ func usage() {
     print("  SYNAPSE_I2P_ROUTER_DIR I2P+ install directory (default: /Applications/i2p or ~/i2p)")
     print("  SYNAPSE_KCC           Krypton compiler binary (default: first kcc reporting a")
     print("                        Krypton version; /usr/bin/kcc is macOS Kerberos)")
+    print("  .synapse-kcc          Optional gitignored file in the checkout holding one")
+    print("                        compiler path; relative paths resolve from the repo root.")
+    print("                        Used when SYNAPSE_KCC is unset.")
 }
 
 func commandAt(index) {

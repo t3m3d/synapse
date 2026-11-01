@@ -180,6 +180,17 @@ tools/synapse-macos.sh i2p-open personal
 tools/synapse-macos.sh i2p-open personal subscriptions
 ```
 
+The compiler is chosen by its `kcc version` banner, not by name, because macOS
+ships an unrelated Kerberos tool called `kcc` in `/usr/bin`. To build with a
+specific compiler, set `SYNAPSE_KCC` for that shell, or record one once in a
+gitignored `.synapse-kcc` file at the repository root; a relative path there
+resolves from the root, so `../krypton/bootstrap/kcc_driver_macos_aarch64`
+selects a Krypton development driver without committing a machine-specific
+path. `SYNAPSE_KCC` takes precedence over the file, and an installed `kcc` is
+used when neither is present. A development driver that resolves its standard
+library from the environment also needs `KRYPTON_ROOT` exported in the build
+shell.
+
 The macOS controller uses the same tracked overlay and privacy patch as the
 Windows controller. It keeps build state under `.synapse-build` and does not
 delete files from the upstream Firefox checkout. `i2p-settings` builds an
