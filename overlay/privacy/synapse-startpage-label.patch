@@ -26,7 +26,7 @@ index 783c67d397a5..40d1ba52548f 100644
          content/browser/browser-thumbnails.js               (content/browser-thumbnails.js)
          content/browser/browser-trustPanel.js               (content/browser-trustPanel.js)
 diff --git a/browser/components/newtab/AboutNewTabRedirector.sys.mjs b/browser/components/newtab/AboutNewTabRedirector.sys.mjs
-index 33ebe5111a15..aaa1deb202ba 100644
+index 33ebe5111a15..648e774bdbef 100644
 --- a/browser/components/newtab/AboutNewTabRedirector.sys.mjs
 +++ b/browser/components/newtab/AboutNewTabRedirector.sys.mjs
 @@ -61,6 +61,20 @@ const PREF_NEWTAB_SELF_LOADING =
@@ -50,7 +50,7 @@ index 33ebe5111a15..aaa1deb202ba 100644
  /**
   * The AboutHomeStartupCacheChild is responsible for connecting the
   * AboutNewTabRedirectorChild with a cached document and script for about:home
-@@ -539,10 +553,24 @@ export class AboutNewTabRedirectorParent extends BaseAboutNewTabRedirector {
+@@ -539,10 +553,22 @@ export class AboutNewTabRedirectorParent extends BaseAboutNewTabRedirector {
  
    newChannel(uri, loadInfo) {
      let chromeURI = this.getChromeURI(uri);
@@ -59,8 +59,6 @@ index 33ebe5111a15..aaa1deb202ba 100644
 -    if (
 -      uri.spec.startsWith("about:home") ||
 -      (uri.spec.startsWith("about:newtab") && lazy.BUILTIN_NEWTAB_ENABLED)
-+    let synapseURL = synapseNewTabURL();
-+
 +    if (uri.spec.startsWith("about:home")) {
 +      if (synapseURL) {
 +        chromeURI = Services.io.newURI(synapseURL);
@@ -78,7 +76,7 @@ index 33ebe5111a15..aaa1deb202ba 100644
      ) {
        chromeURI = Services.io.newURI(this.defaultURL);
      }
-@@ -603,7 +631,12 @@ export class AboutNewTabRedirectorChild extends BaseAboutNewTabRedirector {
+@@ -603,7 +629,12 @@ export class AboutNewTabRedirectorChild extends BaseAboutNewTabRedirector {
        if (cacheChannel) {
          return cacheChannel;
        }
@@ -92,7 +90,7 @@ index 33ebe5111a15..aaa1deb202ba 100644
      } else {
        // The only other possibility is about:newtab.
        //
-@@ -613,7 +646,10 @@ export class AboutNewTabRedirectorChild extends BaseAboutNewTabRedirector {
+@@ -613,7 +644,10 @@ export class AboutNewTabRedirectorChild extends BaseAboutNewTabRedirector {
        // it still happens to be around.
        AboutHomeStartupCacheChild.disqualifyCache();
  

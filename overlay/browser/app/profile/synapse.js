@@ -146,3 +146,6 @@ pref("browser.newtab.url", "https://www.krypton-lang.org/s.html");
 // migration into that service remain explicit roadmap work.
 pref("browser.profiles.enabled", true);
 pref("browser.profiles.created", false);
+
+// Keep crash recovery available without replacing the first start-page tab.
+pref("browser.synapse.sessionRestorePopup", true);
