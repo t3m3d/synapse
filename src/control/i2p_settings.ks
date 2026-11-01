@@ -32,24 +32,48 @@ func settingsCommand(action, identity) {
     emit ""
 }
 
-func settingsCommandSucceeded(output) {
-    emit contains(output, "__SYNAPSE_EXIT__0")
+// Strip surrounding line breaks only: controller output is indented, so blank
+// space inside the body has to survive.
+func settingsTrimLines(value) {
+    let lo = 0
+    let hi = len(value)
+    while lo < hi {
+        let c = toInt(charCode(substring(value, lo, lo + 1)))
+        if c == 10 || c == 13 { lo += 1 } else { break }
+    }
+    while hi > lo {
+        let c = toInt(charCode(substring(value, hi - 1, hi)))
+        if c == 10 || c == 13 { hi -= 1 } else { break }
+    }
+    emit substring(value, lo, hi)
 }
 
-func settingsCommandOutput(output) {
-    let marker = indexOf(output, "\n__SYNAPSE_EXIT__")
-    if marker >= 0 { emit substring(output, 0, marker) }
-    emit output
+// The bridge hands back "<exit code>\n<output>". The code is the controller's
+// real status from shellRun, not a sentinel embedded in its stdout.
+func settingsCommandSucceeded(result) {
+    emit getLine(result, 0) == "0"
+}
+
+func settingsCommandOutput(result) {
+    let code = getLine(result, 0)
+    emit settingsTrimLines(substring(result, len(code) + 1, len(result)))
 }
 
 func runSettingsTool(action, identity) {
-    let workspace = exec("printf '%s' \"$SYNAPSE_WORKSPACE_ROOT\"")
-    if len(workspace) == 0 { emit "Synapse workspace was not provided by its launcher." }
+    let workspace = settingsTrimLines(exec("printf '%s' \"$SYNAPSE_WORKSPACE_ROOT\""))
+    if len(workspace) == 0 { emit "1\nSynapse workspace was not provided by its launcher." }
     let command = settingsCommand(action, identity)
-    if len(command) == 0 { emit "Unsupported I2P settings action." }
-    let script = workspace + "/tools/synapse-macos.sh"
-    let invocation = settingsShellQuote(script) + " " + command + " 2>&1; result=$?; echo __SYNAPSE_EXIT__$result"
-    emit exec(invocation)
+    if len(command) == 0 { emit "1\nUnsupported I2P settings action." }
+    // shellRun waits for the controller and returns its real exit status, while
+    // stdout and stderr are captured through a temporary file so the window can
+    // show them. This keeps one execution and needs no marker parsing.
+    let log = settingsTrimLines(exec("mktemp -t synapse-i2p"))
+    if len(log) == 0 { emit "1\nCould not create a temporary log for the controller output." }
+    let invocation = settingsShellQuote(workspace + "/tools/synapse-macos.sh") + " " + command
+    let code = shellRun("{ " + invocation + "; } > " + settingsShellQuote(log) + " 2>&1")
+    let output = exec("cat " + settingsShellQuote(log))
+    exec("rm -f " + settingsShellQuote(log))
+    emit code + "\n" + output
 }
 
 func settingsBind(control, identity, details, status) {

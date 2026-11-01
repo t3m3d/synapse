@@ -182,13 +182,16 @@ tools/synapse-macos.sh i2p-open personal subscriptions
 
 The macOS controller uses the same tracked overlay and privacy patch as the
 Windows controller. It keeps build state under `.synapse-build` and does not
-delete files from the upstream Firefox checkout. `i2p-settings` builds and opens
-a standalone Synapse I2P Network settings window with setup diagnostics,
+delete files from the upstream Firefox checkout. `i2p-settings` builds an
+Objective-K app bundle at `.synapse-build/Synapse I2P Settings.app` and opens its
+standalone Synapse I2P Network settings window with setup diagnostics,
 official download link, router status, explicit start/graceful-stop, identity
 selection, browser launch, and SusiDNS actions. Its router-action bridge uses
-Krypton's current synchronous `exec()` API with a fixed allowlist of actions, so
-the window can pause while a router command runs; a native nonblocking
-argv-based process API is not yet available in the current Krypton framework.
+Krypton's synchronous `shellRun()` builtin for the controller's real exit
+status, capturing output through a temporary file, with a fixed allowlist of
+actions, so the window can pause while a router command runs; commands still
+travel to `/bin/sh -c`, since a nonblocking argv-based process API is not yet
+available in the current Krypton framework.
 It is not yet embedded in Firefox `about:preferences`. `i2p-setup-check` reports
 Java runtime, installation script, and proxy-listener status separately;
 `i2p-install-guide` opens the [official I2P+ download page](https://i2pplus.github.io/download.html).

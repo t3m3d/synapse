@@ -1,0 +1,86 @@
+diff --git a/browser/modules/moz.build b/browser/modules/moz.build
+--- a/browser/modules/moz.build
++++ b/browser/modules/moz.build
+@@ -147,6 +147,7 @@
+     "SelectionChangedMenulist.sys.mjs",
+     "SiteDataManager.sys.mjs",
+     "SitePermissions.sys.mjs",
++    "SynapseSessionRecovery.sys.mjs",
+     "TransientPrefs.sys.mjs",
+     "UpdatePolicyEnforcer.sys.mjs",
+     "URILoadingHelper.sys.mjs",
+diff --git a/browser/components/sessionstore/SessionStore.sys.mjs b/browser/components/sessionstore/SessionStore.sys.mjs
+--- a/browser/components/sessionstore/SessionStore.sys.mjs
++++ b/browser/components/sessionstore/SessionStore.sys.mjs
+@@ -600,6 +600,12 @@
+     return LastSession.canRestore;
+   }
+ 
++  // Synapse chrome only prompts for a preserved recovery interstitial,
++  // rather than for every ordinary deferred browsing session.
++  get synapseRecoveryPending() {
++    return !!LastSession.getState()?.synapseRecoveryPending;
++  }
++
+   set canRestoreLastSession(val) {
+     if (!val) {
+       LastSession.clear();
+@@ -708,7 +714,14 @@
+           );
+ 
+           if (remainingState.windows.length) {
+-            LastSession.setState(remainingState);
++            let deferredState = remainingState;
++            if (Services.prefs.getBoolPref("browser.synapse.sessionRestorePopup", false)) {
++              const { recoveryForDeferredStartup } = ChromeUtils.importESModule(
++                "resource:///modules/SynapseSessionRecovery.sys.mjs"
++              );
++              deferredState = recoveryForDeferredStartup(remainingState);
++            }
++            LastSession.setState(deferredState);
+           }
+           Glean.browserEngagement.sessionrestoreInterstitial.deferred_restore.add(
+             1
+@@ -764,6 +777,26 @@
+             );
+             this.#log.debug("initSession, will autorestore");
+             this.#removeExplicitlyClosedTabs(state);
++          }
++
++          // Synapse: preserve the complete recovery payload in LastSession,
++          // while the first tab loads the configured homepage (including the
++          // I2P router homepage). Malformed payloads keep Gecko's recovery page.
++          if (Services.prefs.getBoolPref("browser.synapse.sessionRestorePopup", false)) {
++            const { prepareRecoveryPopup } = ChromeUtils.importESModule(
++              "resource:///modules/SynapseSessionRecovery.sys.mjs"
++            );
++            let home = Services.prefs.getIntPref("browser.startup.page", 1) === 0
++              ? "about:blank"
++              : Services.prefs.getStringPref("browser.startup.homepage", "about:home").split("|")[0].trim();
++            let popup = prepareRecoveryPopup(
++              state, home, lazy.E10SUtils.SERIALIZED_SYSTEMPRINCIPAL
++            );
++            if (popup) {
++              LastSession.setState(popup.recoveryState);
++              state = popup.startupState;
++              this.#log.debug("Synapse recovery deferred to startup prompt");
++            }
+           }
+ 
+           // Update the session start time using the restored session state.
+diff --git a/browser/components/sessionstore/SessionStartup.sys.mjs b/browser/components/sessionstore/SessionStartup.sys.mjs
+--- a/browser/components/sessionstore/SessionStartup.sys.mjs
++++ b/browser/components/sessionstore/SessionStartup.sys.mjs
+@@ -211,7 +211,11 @@
+       `isAutomaticRestoreEnabled: ${isAutomaticRestoreEnabled}`
+     );
+     // If this is a normal restore then throw away any previous session.
+-    if (!isAutomaticRestoreEnabled && this._initialState) {
++    if (
++      !isAutomaticRestoreEnabled && this._initialState &&
++      !(Services.prefs.getBoolPref("browser.synapse.sessionRestorePopup", false) &&
++        this._initialState.lastSessionState?.synapseRecoveryPending)
++    ) {
+       lazy.sessionStoreLogger.debug(
+         "Discarding previous session as we have initialState"
+       );
