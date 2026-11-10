@@ -3,8 +3,8 @@
 #
 # Commands, arguments and exit codes belong to the controller. This shim exists
 # only because `kr` and `kcc -r` both discard the program's exit status, which
-# callers here depend on (the I2P settings app appends `echo __SYNAPSE_EXIT__$?`
-# after running this script, and shell users chain commands with &&). It
+# callers here depend on (the I2P settings app captures the status, and shell
+# users chain commands with &&). It
 # compiles the controller once, recompiles when the source changes, then hands
 # over with exec so the real status is preserved.
 set -uo pipefail
@@ -51,7 +51,8 @@ if [[ -z "$kcc" ]]; then
   exit 1
 fi
 
-if [[ ! -x "$binary" || "$source_file" -nt "$binary" ]]; then
+component_source="$root/src/platform/macos/i2p_component.k"
+if [[ ! -x "$binary" || "$source_file" -nt "$binary" || "$component_source" -nt "$binary" ]]; then
   mkdir -p "$(dirname "$binary")"
   if ! build_log="$("$kcc" "$source_file" -o "$binary" 2>&1)"; then
     printf 'Synapse: could not build the KryptScript controller\n%s\n' "$build_log" >&2

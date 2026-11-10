@@ -1,7 +1,6 @@
 #!/usr/bin/env kr
 // Synapse's first native I2P settings surface for macOS.
 import "k:okui"
-import "k:proc_ex"
 
 func settingsShellQuote(value) {
     let singleQuote = fromCharCode(39)
@@ -59,9 +58,25 @@ func settingsCommandOutput(result) {
     emit settingsTrimLines(substring(result, len(code) + 1, len(result)))
 }
 
-func runSettingsTool(action, identity) {
+func settingsController() {
+    let binary = bundledExecutable("synapse-macos")
+    let key = bundledResource("i2p-component-public.pem")
+    if len(binary) > 0 && len(key) > 0 {
+        let parent = settingsTrimLines(exec("/usr/bin/dirname " + settingsShellQuote(binary)))
+        let browser = settingsTrimLines(exec("cd " + settingsShellQuote(parent + "/../../../../..") +
+            " && /bin/pwd -P"))
+        if len(browser) == 0 { emit "" }
+        emit "SYNAPSE_BROWSER_APP=" + settingsShellQuote(browser) +
+            " SYNAPSE_I2P_COMPONENT_KEY=" + settingsShellQuote(key) + " " + settingsShellQuote(binary)
+    }
     let workspace = settingsTrimLines(exec("printf '%s' \"$SYNAPSE_WORKSPACE_ROOT\""))
-    if len(workspace) == 0 { emit "1\nSynapse workspace was not provided by its launcher." }
+    if len(workspace) == 0 { emit "" }
+    emit settingsShellQuote(workspace + "/tools/synapse-macos.sh")
+}
+
+func runSettingsTool(action, identity) {
+    let controller = settingsController()
+    if len(controller) == 0 { emit "1\nSynapse I2P controller is unavailable." }
     let command = settingsCommand(action, identity)
     if len(command) == 0 { emit "1\nUnsupported I2P settings action." }
     // shellRun waits for the controller and returns its real exit status, while
@@ -69,7 +84,7 @@ func runSettingsTool(action, identity) {
     // show them. This keeps one execution and needs no marker parsing.
     let log = settingsTrimLines(exec("mktemp -t synapse-i2p"))
     if len(log) == 0 { emit "1\nCould not create a temporary log for the controller output." }
-    let invocation = settingsShellQuote(workspace + "/tools/synapse-macos.sh") + " " + command
+    let invocation = controller + " " + command
     let code = shellRun("{ " + invocation + "; } > " + settingsShellQuote(log) + " 2>&1")
     let output = exec("cat " + settingsShellQuote(log))
     exec("rm -f " + settingsShellQuote(log))
@@ -110,12 +125,45 @@ func onInstallGuide(self, cmd, sender) {
     emit done()
 }
 
+// Download in a child process so the Objective-K event loop stays responsive.
+// No automatic download, and the controller serializes installation attempts.
+let settingsComponentLog = ""
+
+func onManagedInstall(self, cmd, sender) {
+    let details = get(sender, "details")
+    let status = get(sender, "status")
+    let controller = settingsController()
+    if len(controller) == 0 {
+        doText(status, "Managed component controller is unavailable.")
+        emit done()
+    }
+    let log = settingsTrimLines(exec("mktemp -t synapse-i2p-download"))
+    if len(log) == 0 {
+        doText(status, "Could not create download status file.")
+        emit done()
+    }
+    let invocation = controller + " component-install"
+    let background = invocation + " </dev/null > " + settingsShellQuote(log) + " 2>&1 &"
+    if shellRun(background) != "0" {
+        doText(status, "Could not start the component updater.")
+        emit done()
+    }
+    settingsComponentLog = log
+    doText(status, "I2P+ update requested. Use Refresh status to check the result.")
+    doTextBox(details, "Only signed packages are installed. Existing router stays selected until verification finishes.")
+    emit done()
+}
+
 func onRouterRefresh(self, cmd, sender) {
     let details = get(sender, "details")
     let status = get(sender, "status")
     doText(status, "Checking the installed I2P+ router…")
     let output = runSettingsTool("status", "personal")
-    doTextBox(details, settingsCommandOutput(output))
+    let detailsText = settingsCommandOutput(output)
+    if len(settingsComponentLog) > 0 {
+        detailsText = detailsText + "\n\nLatest component update:\n" + readFile(settingsComponentLog)
+    }
+    doTextBox(details, detailsText)
     if settingsCommandSucceeded(output) {
         doText(status, "Router command and local proxy status refreshed. A listening proxy does not prove bootstrap.")
     } else {
@@ -131,7 +179,7 @@ func onRouterStart(self, cmd, sender) {
     let output = runSettingsTool("start", "personal")
     doTextBox(details, settingsCommandOutput(output))
     if settingsCommandSucceeded(output) {
-        doText(status, "Start requested. I2P browsing stays blocked until the local proxy is listening.")
+        doText(status, "Start requested. I2P browsing stays blocked until the router check succeeds.")
     } else {
         doText(status, "Router start failed; inspect the command output below.")
     }
@@ -158,8 +206,8 @@ func onOpenI2pBrowser(self, cmd, sender) {
     let identity = settingsIdentity(choice(get(sender, "identity")))
     let output = runSettingsTool("open", identity)
     doTextBox(details, settingsCommandOutput(output))
-    if settingsCommandSucceeded(output) && contains(output, "started through") {
-        doText(status, "I2P browser opened for " + identity + ".")
+    if settingsCommandSucceeded(output) {
+        doText(status, "I2P browser launch requested for " + identity + ".")
     } else {
         doText(status, "Could not open I2P browser; check router/proxy status below.")
     }
@@ -172,8 +220,8 @@ func onOpenAddressBook(self, cmd, sender) {
     let identity = settingsIdentity(choice(get(sender, "identity")))
     let output = runSettingsTool("addressbook", identity)
     doTextBox(details, settingsCommandOutput(output))
-    if settingsCommandSucceeded(output) && contains(output, "started through") {
-        doText(status, "SusiDNS opened. Adding its optional feed is a separate trust decision.")
+    if settingsCommandSucceeded(output) {
+        doText(status, "SusiDNS launch requested. Adding its optional feed is a separate trust decision.")
     } else {
         doText(status, "Could not open SusiDNS; check router/proxy status below.")
     }
@@ -198,7 +246,8 @@ just run {
     let start = button(win, "Start router", area(412, 306, 120, 34))
     let stop = button(win, "Graceful stop", area(544, 306, 120, 34))
 
-    label(win, "Automatic startup: Off · router starts only when you choose Start", area(26, 270, 620, 24))
+    let managed = button(win, "Install or update I2P+", area(26, 266, 178, 30))
+    label(win, "Router starts only when requested.", area(219, 270, 420, 24))
     label(win, "I2P browser profile", area(26, 230, 160, 24))
     let identity = choices(win, area(184, 225, 180, 150))
     doAddChoice(identity, "Personal")
@@ -215,6 +264,8 @@ just run {
     doTextBox(details, "Router status has not been checked yet.\r\n\r\nStart is a user-level action. Synapse does not install a privileged launchd service or enable login autostart. A TCP listener is not proof that the router has bootstrapped.")
     let status = label(win, "Automatic startup is off.", area(26, 24, 630, 24))
 
+    settingsBind(managed, identity, details, status)
+    doClick(managed, "synapse.i2p.settings.managed", funcptr(onManagedInstall))
     settingsBind(setup, identity, details, status)
     settingsBind(install, identity, details, status)
     settingsBind(refresh, identity, details, status)

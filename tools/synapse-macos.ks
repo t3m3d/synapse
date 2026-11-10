@@ -18,6 +18,7 @@
 //   - getLine()/substring() return text, so exit codes read that way are
 //     compared with text ("0").
 import "k:sh"
+import "../src/platform/macos/i2p_component.k"
 
 // ── shell plumbing ───────────────────────────────────────────────────
 // exec() returns stdout only, so commands that matter append an exit marker.
@@ -452,6 +453,74 @@ func i2pSettings() {
     if len(output) > 0 { print(chomp(output)) }
 }
 
+// Work on a new release copy. Signing and notarization follow staging.
+func stageWebsiteI2p(source, destination, key) {
+    if len(source) == 0 || len(destination) == 0 || len(key) == 0 {
+        fail("usage: stage-website-i2p <Synapse.app> <new-copy.app> <public.pem>")
+    }
+    if componentOk("test -x " + componentQuote(source + "/Contents/MacOS/synapse") +
+        " && test ! -e " + componentQuote(destination) + " && test ! -L " + componentQuote(destination)) != 1 {
+        fail("provide a Synapse app and a new destination")
+    }
+    if componentOk("/usr/bin/openssl pkey -pubin -noout -in " + componentQuote(key)) != 1 {
+        fail("provide the release public key in PEM format")
+    }
+
+    let settings = buildI2pSettings()
+    let controller = buildKrypton(joinPath(workspace(), "tools/synapse-macos.ks"),
+        joinPath(buildStateRoot(), "website-i2p-controller"), "website I2P controller")
+    let helper = destination + "/Contents/Helpers/Synapse I2P Settings.app"
+    let resources = helper + "/Contents/Resources"
+    if componentOk("/usr/bin/ditto " + componentQuote(source) + " " + componentQuote(destination) +
+        " && /bin/mkdir -p " + componentQuote(resources) +
+        " && /usr/bin/ditto " + componentQuote(settings) + " " + componentQuote(helper) +
+        " && /usr/bin/install -m 755 " + componentQuote(controller) + " " +
+        componentQuote(helper + "/Contents/MacOS/synapse-macos") +
+        " && /usr/bin/install -m 644 " + componentQuote(key) + " " +
+        componentQuote(resources + "/i2p-component-public.pem")) != 1 {
+        fail("could not finish staging the website app; discard the incomplete destination")
+    }
+    print("Staged website app: " + destination)
+    print("Sign the settings helper and then the outer app before notarizing.")
+}
+
+func managedI2pKey() {
+    let packaged = envValue("SYNAPSE_I2P_COMPONENT_KEY")
+    if len(packaged) > 0 { emit packaged }
+    let root = workspaceRoot()
+    if len(root) == 0 { emit "" }
+    emit joinPath(root, "config/i2p-component-public.pem")
+}
+
+// The website edition can manage a separate router component. No download
+// occurs during browser startup or ordinary diagnostic commands.
+func managedI2pRoot() {
+    emit envValue("HOME") + "/Library/Application Support/Synapse/Components/i2p"
+}
+
+func managedI2pSelected() { emit componentHasSelection(managedI2pRoot()) }
+
+func managedI2pInstall() {
+    let key = managedI2pKey()
+    if componentInstall(managedI2pRoot(), key) != 1 { exit(1) }
+}
+
+func managedI2pStatus() {
+    if managedI2pSelected() == 1 {
+        let sequence = componentCurrent(managedI2pRoot())
+        if componentDigits(sequence, 9) == 1 {
+            print("Managed I2P+ sequence: " + sequence)
+        } else {
+            printErr("Managed I2P+ selection is damaged.\n")
+        }
+    } else {
+        print("Managed I2P+ is not installed.")
+    }
+    if componentOk("test -f " + componentQuote(managedI2pKey())) != 1 {
+        print("Managed downloads are unavailable until this build has a release verification key.")
+    }
+}
+
 // ── I2P+ router and profiles ─────────────────────────────────────────
 func i2pIdentity(value) {
     if value == "personal" || value == "work" || value == "school" ||
@@ -462,15 +531,19 @@ func i2pIdentity(value) {
 }
 
 func i2pProxyReady() {
-    // Bash and Python are already required by this controller; keeping the
-    // documented Python probe preserves the tested readiness semantics.
-    emit okCmd("python3 -c 'import socket; s=socket.socket(); s.settimeout(1.5); " +
-        "rc=s.connect_ex((\"127.0.0.1\",4444)); s.close(); " +
-        "raise SystemExit(0 if rc == 0 else 1)'")
+    emit componentOk("/usr/bin/nc -G 2 -z 127.0.0.1 4444")
 }
 
 func i2pCheck() {
     print("I2P+ HTTP/HTTPS proxy: 127.0.0.1:4444")
+    if managedI2pSelected() == 1 {
+        if componentRouterCommand(managedI2pRoot(), "ready") == 1 {
+            print("Managed I2P+ runner reports ready.")
+            emit 1
+        }
+        printErr("Managed I2P+ is not ready. Browsing is blocked.\n")
+        emit 0
+    }
     if i2pProxyReady() == 1 {
         print("I2P+ endpoint check: TCP listener available (not authenticated)")
         emit 1
@@ -504,6 +577,11 @@ func i2pRouterDir() {
 }
 
 func i2pSetupCheck() {
+    managedI2pStatus()
+    if managedI2pSelected() == 1 {
+        i2pCheck()
+        emit 1
+    }
     if which("java") != "" && okCmd("java -version") == 1 {
         print("Java runtime: available")
         print(chomp(getLine(runBody("java -version"), 0)))
@@ -534,11 +612,21 @@ func i2pSetupCheck() {
 }
 
 func i2pInstallGuide() {
-    exec("open " + quote("https://i2pplus.github.io/download.html"))
+    if shellRun("/usr/bin/open https://i2pplus.github.io/download.html") != "0" {
+        fail("could not open the official I2P+ downloads page")
+    }
     print("Opened the official I2P+ downloads page. Install Java 8+ first if needed.")
 }
 
 func i2pRouterStatus() {
+    if managedI2pSelected() == 1 {
+        managedI2pStatus()
+        let status = componentRouterExit(managedI2pRoot(), "status")
+        if status == "0" { print("Managed I2P+ router is running.") }
+        else if status == "3" { print("Managed I2P+ router is stopped.") }
+        else { emit status }
+        emit "0"
+    }
     let dir = i2pRouterDir()
     print("I2P+ router command status:")
     let result = runMarked("cd " + quote(dir) + " && sh ./i2prouter status")
@@ -554,6 +642,13 @@ func i2pRouterStatus() {
 }
 
 func i2pRouterStart() {
+    if managedI2pSelected() == 1 {
+        if componentChangeRouter(managedI2pRoot(), "start") != 1 {
+            fail("managed I2P+ router start failed")
+        }
+        print("Managed I2P+ start requested. Browsing stays blocked until ready.")
+        emit 1
+    }
     let dir = i2pRouterDir()
     if i2pProxyReady() == 1 {
         print("I2P+ proxy is already listening at 127.0.0.1:4444")
@@ -571,6 +666,13 @@ func i2pRouterStart() {
 }
 
 func i2pRouterStop() {
+    if managedI2pSelected() == 1 {
+        if componentChangeRouter(managedI2pRoot(), "stop") != 1 {
+            fail("managed I2P+ router stop failed")
+        }
+        print("Managed I2P+ shutdown requested.")
+        emit 1
+    }
     let dir = i2pRouterDir()
     let stopped = runMarked("cd " + quote(dir) + " && sh ./i2prouter graceful")
     let stopCode = getLine(stopped, 0)
@@ -650,17 +752,25 @@ func writeI2pProfilePrefs(profile) {
     let generated = i2pPrefs()
     let ownedMarker = "// Generated by Synapse. Dedicated I2P+ profile."
 
-    if exists(target) == 1 {
-        if !contains(readFile(target), ownedMarker) {
+    if componentOk("test -L " + componentQuote(target)) == 1 {
+        fail("refusing to replace a linked I2P profile preference file: " + target)
+    }
+    if componentOk("test -e " + componentQuote(target)) == 1 {
+        let existing = readFile(target)
+        if getLine(existing, 0) != ownedMarker {
             fail("refusing to replace a user-owned I2P profile preference file: " + target)
         }
-        if readFile(target) == generated { emit 1 }
+        if existing == generated { emit 1 }
     }
 
-    let staged = joinPath(profile, ".user.js.synapse-tmp")
+    let staged = getLine(exec("/usr/bin/mktemp " + componentQuote(profile + "/.user.js.XXXXXXXX")), 0)
+    if startsWith(staged, profile + "/.user.js.") != 1 { fail("could not stage I2P profile preferences") }
     writeFile(staged, generated)
-    exec("chmod 600 " + quote(staged))
-    exec("mv -f " + quote(staged) + " " + quote(target))
+    if readFile(staged) != generated || componentOk("/bin/mv -f " + componentQuote(staged) +
+        " " + componentQuote(target)) != 1 {
+        shellRun("/bin/rm -f " + componentQuote(staged))
+        fail("could not activate the dedicated I2P profile preferences")
+    }
     emit 1
 }
 
@@ -676,19 +786,26 @@ func i2pOpen(identityValue, destination) {
     }
     if i2pCheck() != 1 { emit 0 }
 
-    let app = joinPath(objRoot(), "dist/Synapse.app")
-    if isDir(app) != 1 || okCmd("test -x " + quote(joinPath(app, "Contents/MacOS/synapse"))) != 1 {
-        fail("Synapse macOS app is missing; run tools/synapse-macos.ks build first")
+    let app = envValue("SYNAPSE_BROWSER_APP")
+    if len(app) == 0 { app = joinPath(objRoot(), "dist/Synapse.app") }
+    if componentOk("test -x " + componentQuote(joinPath(app, "Contents/MacOS/synapse"))) != 1 {
+        fail("Synapse macOS app is missing")
     }
 
     let profile = joinPath(envValue("HOME"),
         "Library/Application Support/Synapse/Profiles/synapse-i2p-" + identity)
-    exec("mkdir -p " + quote(profile))
-    exec("chmod 700 " + quote(profile))
+    if componentOk("umask 077 && /bin/mkdir -p " + componentQuote(profile) +
+        " && /bin/chmod 700 " + componentQuote(profile)) != 1 {
+        fail("could not prepare the dedicated I2P profile")
+    }
     writeI2pProfilePrefs(profile)
 
-    print("Launching I2P " + identity + " with its isolated profile: " + profile)
-    exec("open -n " + quote(app) + " --args -no-remote -profile " + quote(profile) + " " + quote(startUrl))
+    if shellRun("/usr/bin/open -n " + componentQuote(app) +
+        " --args -no-remote -profile " + componentQuote(profile) + " " +
+        componentQuote(startUrl)) != "0" {
+        fail("macOS did not accept the I2P+ browser launch request")
+    }
+    print("I2P+ launch requested for " + identity + " with its dedicated profile.")
     emit 1
 }
 
@@ -697,6 +814,9 @@ func usage() {
     print("Synapse macOS controller")
     print("  tools/synapse-macos.ks doctor")
     print("  tools/synapse-macos.ks i2p-settings")
+    print("  tools/synapse-macos.ks component-install")
+    print("  tools/synapse-macos.ks component-status")
+    print("  tools/synapse-macos.ks stage-website-i2p <Synapse.app> <new-copy.app> <public.pem>")
     print("  tools/synapse-macos.ks i2p-check")
     print("  tools/synapse-macos.ks i2p-setup-check")
     print("  tools/synapse-macos.ks i2p-install-guide")
@@ -731,6 +851,9 @@ func main() {
     let command = commandAt(0)
     if command == "doctor" { doctor() }
     else if command == "i2p-settings" { i2pSettings() }
+    else if command == "component-install" { managedI2pInstall() }
+    else if command == "component-status" { managedI2pStatus() }
+    else if command == "stage-website-i2p" { stageWebsiteI2p(commandAt(1), commandAt(2), commandAt(3)) }
     else if command == "apply" { applyOverlay() }
     else if command == "build" { runMach("build", "build") }
     else if command == "faster" { runMach("faster", "build faster") }

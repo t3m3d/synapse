@@ -206,7 +206,7 @@ available in the current Krypton framework.
 It is not yet embedded in Firefox `about:preferences`. `i2p-setup-check` reports
 Java runtime, installation script, and proxy-listener status separately;
 `i2p-install-guide` opens the [official I2P+ download page](https://i2pplus.github.io/download.html).
-The I2P+ router management commands use the installed `i2prouter` script (default install locations
+The manual I2P+ path uses the installed `i2prouter` script (default install locations
 `/Applications/i2p` and `~/i2p`; set `SYNAPSE_I2P_ROUTER_DIR` for another path).
 Start and graceful stop are explicit user actions; Synapse does not install a
 launchd service or configure login autostart. Router status and proxy readiness
@@ -218,6 +218,9 @@ Console. It never adds the optional `http://skank.i2p/hosts.txt` address-book
 subscription automatically. This is a local development path; the TCP probe
 confirms only that a listener exists, not that the router has bootstrapped or
 that traffic is protected by operating-system egress controls.
+
+The macOS website edition can also stage a native settings helper with a
+separately signed, opt-in router feed. See [website I2P+ packaging](docs/website-i2p.md).
 
 ### Durable agent and sandbox workspace (Archil)
 
