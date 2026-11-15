@@ -360,3 +360,12 @@ window.addEventListener("load", async () => {
     console.error("Synapse recovery prompt unavailable", error);
   }
 }, { once: true });
+
+// Register the page actor before the first tab begins loading.
+try {
+  ChromeUtils.importESModule(
+    "resource:///modules/SynapseAdaptiveDarkMode.sys.mjs"
+  ).installAdaptiveDarkMode(window);
+} catch (error) {
+  console.error("Synapse could not initialize Adaptive Dark Mode", error);
+}

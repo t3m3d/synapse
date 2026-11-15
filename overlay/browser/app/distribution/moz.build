@@ -14,3 +14,10 @@ if CONFIG["BUILT_BY_MOZILLA"]:
         "distribution.ini",
     ]
 
+
+# This directory clears DIST_SUBDIR for policies.json. Place feature modules
+# under the browser resource root so resource:///modules can load them.
+FINAL_TARGET_FILES.browser.modules += [
+    "SynapseAdaptiveDarkMode.sys.mjs",
+    "SynapseAdaptiveDarkModeChild.sys.mjs",
+]

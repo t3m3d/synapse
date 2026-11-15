@@ -50,7 +50,17 @@ async function promptScenario(choice, { recoverable = true, privateWindow = fals
       BUTTON_TITLE_IS_STRING:127,BUTTON_POS_0:1,BUTTON_POS_1:256,BUTTON_POS_1_DEFAULT:16777216,MODAL_TYPE_INTERNAL_WINDOW:3,
       async asyncConfirmEx(){prompts++;return{QueryInterface(){return{get(){return choice}}}}},
     }},
-    ChromeUtils:{importESModule(uri){return uri.includes('SessionStore.')?{SessionStore:store}:{claimRecoveryPopup(){claims++;return true}}}},
+    ChromeUtils: {
+      importESModule(uri) {
+        if (uri.includes('SynapseAdaptiveDarkMode.')) {
+          return {installAdaptiveDarkMode() {}};
+        }
+        if (uri.includes('SessionStore.')) {
+          return {SessionStore: store};
+        }
+        return {claimRecoveryPopup() { claims++; return true; }};
+      },
+    },
     PrivateBrowsingUtils:{isWindowPrivate(){return privateWindow}},Ci:{nsIPropertyBag2:{}},console,
   };
   vm.runInNewContext(chrome,context);

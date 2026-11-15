@@ -222,6 +222,32 @@ that traffic is protected by operating-system egress controls.
 The macOS website edition can also stage a native settings helper with a
 separately signed, opt-in router feed. See [website I2P+ packaging](docs/website-i2p.md).
 
+### Linux development
+
+Use a dedicated Firefox source tree inside a Linux build host or VM. Prepare
+the host using [Mozilla's Linux build guide](https://firefox-source-docs.mozilla.org/setup/linux_build.html)
+and install Bash, Git, and rsync. Run from the Synapse repository on the Linux
+host.
+
+```sh
+export SYNAPSE_FIREFOX_ROOT=/path/to/linux/firefox
+tools/synapse-linux.sh build
+tools/synapse-linux.sh run
+tools/synapse-linux.sh package
+```
+
+Linux objects, toolchains, and packages are stored under
+`.synapse-build/linux-$(uname -m)/`. Build on a guest-native filesystem when
+using a VM. With 8 GB of guest memory, use swap and build with
+`tools/synapse-linux.sh build -j3`.
+
+On x86-64 Linux, the optional native controls use Choc on Wayland and
+Objective-K object state through libobjk. Use a KryptOS toolchain with
+Krypton commit `0c9f9a48` or a compatible newer revision. Build with
+`tools/synapse-linux.sh build-launcher`, then run
+`.synapse-build/linux-x86_64/synapse-launcher /absolute/path/to/synapse`.
+The I2P+ profile uses the proxy of an already running local router.
+
 ### Durable agent and sandbox workspace (Archil)
 
 CI runners and sandboxed coding agents discard their file system when a run

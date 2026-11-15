@@ -1,0 +1,7 @@
+# Loaded by tools/synapse-linux.sh on the Linux build host.
+ac_add_options --enable-bootstrap
+ac_add_options --disable-artifact-builds
+ac_add_options --with-branding=browser/branding/synapse
+ac_add_options --with-app-basename=Synapse
+ac_add_options --with-crashreporter-url=https://crash.synapse.invalid
+mk_add_options MOZ_OBJDIR="$SYNAPSE_LINUX_OBJDIR"

@@ -149,3 +149,6 @@ pref("browser.profiles.created", false);
 
 // Keep crash recovery available without replacing the first start-page tab.
 pref("browser.synapse.sessionRestorePopup", true);
+
+// Opt in through View > Adaptive Dark Mode.
+pref("browser.synapse.adaptiveDarkMode", false);
