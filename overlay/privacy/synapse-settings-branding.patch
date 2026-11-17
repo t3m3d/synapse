@@ -1,0 +1,128 @@
+diff --git a/browser/components/preferences/config/home-startup.mjs b/browser/components/preferences/config/home-startup.mjs
+index 691bcae..5947372 100644
+--- a/browser/components/preferences/config/home-startup.mjs
++++ b/browser/components/preferences/config/home-startup.mjs
+@@ -24,7 +24,6 @@ ChromeUtils.defineESModuleGetters(lazy, {
+   Management: "resource://gre/modules/Extension.sys.mjs",
+ });
+ 
+-const DEFAULT_HOMEPAGE_URL = "about:home";
+ const HOMEPAGE_OVERRIDE_KEY = "homepage_override";
+ const URL_OVERRIDES_TYPE = "url_overrides";
+ const NEW_TAB_KEY = "newTabURL";
+@@ -204,7 +203,7 @@ function setupHomepageGroup(prefWindow) {
+           return ext.id;
+         }
+         switch (prefVal) {
+-          case DEFAULT_HOMEPAGE_URL:
++          case lazy.HomePage.getDefault():
+             return "home";
+           case BLANK_HOMEPAGE_URL:
+             return "blank";
+@@ -243,7 +242,7 @@ function setupHomepageGroup(prefWindow) {
+ 
+         switch (inputVal) {
+           case "home":
+-            return DEFAULT_HOMEPAGE_URL;
++            return lazy.HomePage.getDefault();
+           case "blank":
+             return BLANK_HOMEPAGE_URL;
+           case "custom":
+@@ -318,10 +317,9 @@ function setupHomepageGroup(prefWindow) {
+       let customURLsDescription;
+ 
+       // Make sure we only show user-provided values for custom URLs rather than
+-      // values we set in `browser.startup.homepage` for "Firefox Home",
+-      // "Blank Page", or extension-controlled URLs.
++      // the default homepage, "Blank Page", or extension-controlled URLs.
+       let prefVal = homepageDisplayPref.value.trim();
+-      if ([DEFAULT_HOMEPAGE_URL, BLANK_HOMEPAGE_URL].includes(prefVal)) {
++      if ([lazy.HomePage.getDefault(), BLANK_HOMEPAGE_URL].includes(prefVal)) {
+         customURLsDescription = null;
+       } else {
+         // Add a comma-separated list of Custom URLs the user set for their homepage
+@@ -555,7 +553,7 @@ function setupCustomHomepageGroup(prefWindow) {
+ 
+       let currentVal = homepageDisplayPref.value.trim();
+       if (
+-        [DEFAULT_HOMEPAGE_URL, BLANK_HOMEPAGE_URL].includes(currentVal) ||
++        [lazy.HomePage.getDefault(), BLANK_HOMEPAGE_URL].includes(currentVal) ||
+         currentVal.startsWith("moz-extension://")
+       ) {
+         // Replace non-custom homepage values with the new Custom URL.
+@@ -692,11 +690,11 @@ function setupCustomHomepageGroup(prefWindow) {
+       let type = "list";
+ 
+       // Show a reorderable list of Custom URLs if the user has provided any.
+-      // Make sure to exclude "Firefox Home", "Blank Page", and
++      // Make sure to exclude the default homepage, "Blank Page", and
+       // extension-controlled URLs that are also stored in the homepage pref.
+       let currentPrefVal = homepageDisplayPref.value.trim();
+       if (
+-        ![DEFAULT_HOMEPAGE_URL, BLANK_HOMEPAGE_URL].includes(currentPrefVal)
++        ![lazy.HomePage.getDefault(), BLANK_HOMEPAGE_URL].includes(currentPrefVal)
+       ) {
+         type = homepageDisplayPref.locked ? "list" : "reorderable-list";
+         listItems = urls.map((url, index) => ({
+diff --git a/browser/components/preferences/main.js b/browser/components/preferences/main.js
+index a8de115..7fff075 100644
+--- a/browser/components/preferences/main.js
++++ b/browser/components/preferences/main.js
+@@ -466,8 +466,8 @@ function createDefaultBrowserConfig({
+     l10nId: "is-default-browser-2",
+     control: "moz-promo",
+     controlAttrs: {
+-      imagesrc: "chrome://global/skin/illustrations/kit-happy.svg",
+-      imagedisplay: "cover",
++      imagesrc: "chrome://branding/content/about-logo.svg",
++      imagedisplay: "padded",
+     },
+   };
+ 
+@@ -488,8 +488,8 @@ function createDefaultBrowserConfig({
+       },
+     ],
+     controlAttrs: {
+-      imagesrc: "chrome://global/skin/illustrations/kit-concerned.svg",
+-      imagedisplay: "cover",
++      imagesrc: "chrome://branding/content/about-logo.svg",
++      imagedisplay: "padded",
+     },
+   };
+ 
+diff --git a/browser/locales/en-US/browser/preferences/preferences.ftl b/browser/locales/en-US/browser/preferences/preferences.ftl
+index cd3117f..7e9a46f 100644
+--- a/browser/locales/en-US/browser/preferences/preferences.ftl
++++ b/browser/locales/en-US/browser/preferences/preferences.ftl
+@@ -964,7 +964,7 @@ home-restore-defaults =
+     .accesskey = R
+ 
+ home-mode-choice-default-fx =
+-    .label = { -firefox-home-brand-name } (Default)
++    .label = Start Page
+ 
+ home-mode-choice-custom =
+     .label = Custom URLs…
+@@ -1051,10 +1051,10 @@ home-custom-homepage-bookmarks-button =
+ home-prefs-homepage-extension-option =
+     .label = Extension ({ $extension })
+ 
+-## Home Section - Firefox Home Content Customization
++## Home Section - Built-in Home Content Customization
+ 
+-home-prefs-content-header2 = { -firefox-home-brand-name } Content
+-home-prefs-content-description2 = Choose what content you want on your { -firefox-home-brand-name } screen.
++home-prefs-content-header2 = Built-in Home Content
++home-prefs-content-description2 = Choose what appears on the built-in home screen.
+ 
+ home-prefs-search-header =
+     .label = Web Search
+@@ -2510,7 +2510,7 @@ related-settings-accessibility-link =
+     .label = Customize zoom and font settings in Accessibility
+ 
+ related-settings-home-link =
+-    .label = Customize { -firefox-home-brand-name }
++    .label = Customize homepage and new tabs
+ 
+ related-settings-tabs-browsing-link =
+     .label = Customize browser layout

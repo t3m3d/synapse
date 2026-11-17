@@ -401,6 +401,7 @@ func applyOverlay() {
     if applyPatchIdempotently(root, joinPath(joinPath(joinPath(workspace, "overlay"), "privacy"), "synapse-newtaburl.patch"), "new tab URL") != "1" { emit "0" }
     if applyPatchIdempotently(root, joinPath(joinPath(joinPath(workspace, "overlay"), "privacy"), "synapse-startpage-label.patch"), "start page label") != "1" { emit "0" }
     if applyPatchIdempotently(root, joinPath(joinPath(joinPath(workspace, "overlay"), "privacy"), "synapse-session-recovery.patch"), "session recovery popup") != "1" { emit "0" }
+    if applyPatchIdempotently(root, joinPath(joinPath(joinPath(workspace, "overlay"), "privacy"), "synapse-settings-branding.patch"), "settings branding") != "1" { emit "0" }
     if installMozconfig(workspace, root) != "1" { emit "0" }
     print("Apply: complete")
     emit "1"

@@ -329,6 +329,7 @@ func applyOverlay() {
     applyPatch(overlayPatch("synapse-newtaburl.patch"), "new tab URL")
     applyPatch(overlayPatch("synapse-startpage-label.patch"), "start page label")
     applyPatch(overlayPatch("synapse-session-recovery.patch"), "session recovery popup")
+    applyPatch(overlayPatch("synapse-settings-branding.patch"), "settings branding")
     installMozconfig()
     print("Apply: complete")
 }

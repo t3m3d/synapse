@@ -13,6 +13,8 @@ let launcher = 0
 let launcherRuntime = 0
 let window = ""
 let browserPath = ""
+let launcherQuit = 0
+let launcherMsgDirty = 0
 
 func launcherMessage(runtime, self) {
     emit okKGet(runtime, self, "message")
@@ -95,7 +97,7 @@ func requestI2p() {
 
 func onLauncherKey(key, modifiers) {
     if key == 1 {
-        chocQuit(window)
+        launcherQuit = 1
         emit 1
     }
     if key == 28 {
@@ -109,7 +111,7 @@ func onLauncherKey(key, modifiers) {
         emit 0
     }
     renderLauncher()
-    chocPresent(window)
+    launcherMsgDirty = 1
     emit 1
 }
 
@@ -136,14 +138,18 @@ just run {
     launcherRuntime = __objkRuntime
     launcher = okKNew(launcherRuntime, SynapseLinuxLauncher)
     setMessage("I2P+ requires a running local router.")
+    // The app owns the loop: pump events, present when the callback dirtied
+    // the frame. (chocRun was removed — a shared quit flag cannot cross an
+    // import boundary; setField copies structs, it does not mutate in place.)
     window = chocWindow(chocSharedApp(), "Synapse", 580, 240)
-    // Wait for xdg_surface.configure before Choc attaches the first buffer.
-    // Some compositors send seat events in a separate batch before configure.
-    chocDirtyFlag = 0
-    // Keep the raw callback address. Choc's current Linux setter converts
-    // it through toInt(), which can discard addresses in the ELF text range.
-    chocOnKeyCb = funcptr(onLauncherKey)
+    window = chocOnKey(window, funcptr(onLauncherKey))
     renderLauncher()
-    chocRun(window)
+    while launcherQuit == 0 {
+        window = chocPumpEvents(window)
+        if launcherMsgDirty == 1 {
+            window = chocPresent(window)
+            launcherMsgDirty = 0
+        }
+    }
     doKRelease(launcherRuntime, launcher)
 }

@@ -13,3 +13,9 @@ pref("app.update.promptWaitTime", 86400);
 pref("app.update.checkInstallTime.days", 2);
 pref("app.update.badgeWaitTime", 0);
 pref("devtools.selfxss.count", 5);
+
+// Gecko loads this file after firefox.js, so the Synapse homepage takes
+// precedence over the upstream default while remaining user-configurable.
+pref("browser.startup.page", 1);
+pref("browser.startup.homepage", "https://krypton-lang.org/s.html");
+pref("browser.startup.firstrunSkipsHomepage", false);

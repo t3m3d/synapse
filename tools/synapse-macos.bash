@@ -149,6 +149,18 @@ apply_session_recovery_patch() {
   fi
 }
 
+apply_settings_branding_patch() {
+  local patch="$workspace/overlay/privacy/synapse-settings-branding.patch"
+  if git -C "$firefox_root" apply --check "$patch" >/dev/null 2>&1; then
+    git -C "$firefox_root" apply "$patch"
+    printf 'Applied Synapse settings branding patch.\n'
+  elif git -C "$firefox_root" apply --reverse --check "$patch" >/dev/null 2>&1; then
+    printf 'Synapse settings branding patch is already applied.\n'
+  else
+    fail "settings branding patch no longer applies cleanly"
+  fi
+}
+
 apply_overlay() {
   check_roots
   need_command rsync
@@ -161,6 +173,7 @@ apply_overlay() {
   apply_newtaburl_patch
   apply_startpage_patch
   apply_session_recovery_patch
+  apply_settings_branding_patch
   install_mozconfig
   printf 'Apply: complete\n'
 }

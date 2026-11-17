@@ -52,30 +52,30 @@
     }
   };
 
-  let startPageSpec = () => {
-    let startPage = Services.prefs.getStringPref(PREF, "about:newtab").trim();
-    if (!startPage || startPage === "about:newtab") {
-      // No Synapse start page configured; show real URLs as usual.
-      return null;
-    }
-    // Normalize so a trailing slash in the pref doesn't break matching.
+  let normalizeStartPage = (url) => {
     try {
-      return Services.io.newURI(startPage).spec.replace(/\/$/, "");
+      let spec = Services.io.newURI(url).spec.replace(/\/$/, "");
+      // Older Synapse profiles used the www address for the same page.
+      if (spec === "https://www.krypton-lang.org/s.html") {
+        return "https://krypton-lang.org/s.html";
+      }
+      return spec;
     } catch (e) {
       return null;
     }
   };
 
+  let startPageSpec = () => {
+    let startPage = Services.prefs.getStringPref(PREF, "about:newtab").trim();
+    if (!startPage || ["about:newtab", "about:home", "about:blank"].includes(startPage)) {
+      return null;
+    }
+    return normalizeStartPage(startPage);
+  };
+
   let currentSpec = () => {
     let uri = gBrowser?.selectedBrowser?.currentURI;
-    if (!uri) {
-      return null;
-    }
-    try {
-      return Services.io.newURI(uri.spec).spec.replace(/\/$/, "");
-    } catch (e) {
-      return null;
-    }
+    return uri ? normalizeStartPage(uri.spec) : null;
   };
 
   let showRealURL = () => {
@@ -99,11 +99,7 @@
     // document URI stays about:newtab (where Firefox normally hides the
     // URL bar text), so count about:newtab as the start page too.
     let keystep = currentSpec();
-    let onStart =
-      !!spec &&
-      (keystep === spec ||
-        keystep === "about:newtab" ||
-        keystep === "about:home");
+    let onStart = !!spec && (keystep === spec || keystep === "about:newtab");
     trace(
       "updateLabel spec=" + spec + " cur=" + keystep + " focused=" +
         gURLBar.focused + " touched=" + userTouched + " overridden=" +

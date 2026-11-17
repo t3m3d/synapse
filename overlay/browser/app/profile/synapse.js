@@ -133,13 +133,8 @@ pref("dom.push.serverURL", "");
 // Forced-colors and high-contrast modes still take precedence on their own.
 pref("browser.theme.native-theme", false);
 
-// Default start page: the Synapse start page hosted at Krypton. Users can
-// change both the startup page and the new tab page in Settings > Home
-// ("Firefox Home" / "Blank page" / "Custom URLs..."), so this is only the
-// distribution default, not a lock.
-pref("browser.startup.page", 1);
-pref("browser.startup.homepage", "https://www.krypton-lang.org/s.html");
-pref("browser.newtab.url", "https://www.krypton-lang.org/s.html");
+// Default new-tab page. The homepage default is set in the branding prefs.
+pref("browser.newtab.url", "https://krypton-lang.org/s.html");
 
 // Keep Gecko's transitional profile UI available so profiles created by the
 // earlier prototype remain accessible. Objective-K identity registration and

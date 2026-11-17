@@ -55,7 +55,7 @@ apply_overlay() {
     command -v git >/dev/null && command -v rsync >/dev/null || fail 'git and rsync are required'
     local patch path
     for patch in privacy-loader synapse-theme synapse-places-theme synapse-places-titlebar \
-        synapse-newtaburl synapse-startpage-label synapse-session-recovery; do
+        synapse-newtaburl synapse-startpage-label synapse-session-recovery synapse-settings-branding; do
         path="$workspace/overlay/privacy/$patch.patch"
         if git -C "$firefox" apply --reverse --check "$path" 2>/dev/null; then
             continue
