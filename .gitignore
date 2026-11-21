@@ -442,3 +442,6 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Local build instructions
+/SYNAPSE-BUILD-LOCAL.md
